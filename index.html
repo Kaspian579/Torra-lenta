@@ -766,7 +766,7 @@ main .btn, main .tab { text-shadow: none; }
   }
 
   // Início de cada cena, em fração da rolagem da seção (12 cenas, como no roteiro)
-  var B = [0, .08, .16, .24, .34, .42, .52, .61, .69, .77, .85, .92, 1];
+  var B = [0, .08, .16, .24, .3, .44, .53, .62, .7, .78, .86, .93, 1];
   var CAPTIONS = [
     "Grãos de café selecionados", "O café é moído na hora", "O pó de café é preparado",
     "A xícara ganha forma", "O pó é colocado na xícara", "A água quente é adicionada",
@@ -815,6 +815,7 @@ main .btn, main .tab { text-shadow: none; }
   }
   var PUFF = glowSprite("255,244,232", .9);
   var BOKEH = glowSprite("255,184,104", .9);
+  var DUSTPUFF = glowSprite("150,82,38", .9);
   var CREMA = sprite(512, 512, function (g) {
     var R = rand(7), i, a, d, r, x, y;
     g.translate(256, 256);
@@ -911,6 +912,7 @@ main .btn, main .tab { text-shadow: none; }
     G.handle.push(halfAt(outer, T + h * .62) + cx - tw * .02, T + h * .62);
     G.outLen = outer.len + PI * (G.rx + G.ry) * 1.1;
     build();
+    buildSet();
     return true;
   }
 
@@ -934,8 +936,8 @@ main .btn, main .tab { text-shadow: none; }
   function camera(p) {
     var surf = G.T + G.h * .22;
     var K = [
-      [0, 1.24, H / 2], [B[1], 1.16, H / 2], [B[2], 1, (G.cloudY + G.cy) / 2], [B[3], 1, (G.cloudY + G.cy) / 2],
-      [B[4], 1, G.cy - G.h * .2], [B[6], 1.02, G.cy], [B[7] + .02, 1.3, surf], [B[8], 1.16, surf],
+      [0, 1.24, H / 2], [B[1], 1.16, H / 2], [B[2], .95, G.cy - G.h * .32], [B[3], .9, G.cy - G.h * .28],
+      [B[4], .9, G.cy - G.h * .28], [B[5], .96, G.cy - G.h * .15], [B[6], 1.02, G.cy], [B[7] + .02, 1.26, surf], [B[8], 1.14, surf],
       [B[9], 1, G.cy - G.h * .3], [B[10], .86, G.cy], [B[11], .93, G.cy], [1, .86, G.cy - G.h * .1]
     ];
     for (var i = 1; i < K.length; i++) {
@@ -998,7 +1000,7 @@ main .btn, main .tab { text-shadow: none; }
   }
   function drawBeans(p, t, front) {
     var k2 = beat(p, 1);
-    var dim = 1 - .45 * (seg(p, B[2], B[3]) - seg(p, B[5], B[6]));
+    var dim = (1 - .45 * (seg(p, B[2], B[3]) - seg(p, B[5], B[6]))) * (1 - .45 * SETA);
     for (var i = 0; i < beans.length; i++) {
       var b = beans[i], q = beanPos(b, p, t);
       var x = q.x, y = q.y, a = dim, size = G.tw * .17 * b.sz * q.s;
@@ -1021,169 +1023,308 @@ main .btn, main .tab { text-shadow: none; }
 
   var DUST_COLORS = ["#4a2510", "#6e3a19", "#9a5a2a", "#e0a35c"];
 
-  /* ---------- Mão com a colher de pó (cenas 3 a 5) ---------- */
-  function spoonPose(p) {
+  /* ---------- Cenário da referência: mesa de madeira, pote de grãos, pano, folhas ---------- */
+  var SET = null, SETA = 0;
+  function hash(n) { var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+  function buildSet() {
+    var u = G.tw, R = rand(5), i;
+    var jw = u * .6, jh = u * .88;
+    var jar = sprite(Math.ceil(jw + 20), Math.ceil(jh + 20), function (g) {
+      g.translate(10, 10);
+      var r = jw * .12, top = jh * .1;
+      function body() {
+        g.beginPath(); g.moveTo(r, top); g.lineTo(jw - r, top); g.quadraticCurveTo(jw, top, jw, top + r);
+        g.lineTo(jw, jh - r); g.quadraticCurveTo(jw, jh, jw - r, jh); g.lineTo(r, jh); g.quadraticCurveTo(0, jh, 0, jh - r);
+        g.lineTo(0, top + r); g.quadraticCurveTo(0, top, r, top); g.closePath();
+      }
+      g.save(); body(); g.clip();
+      g.fillStyle = "#120904"; g.fillRect(0, 0, jw, jh);
+      var bs = jw * .22;
+      for (var y = top; y < jh + bs; y += bs * .4) for (var x = -bs * .3; x < jw + bs * .3; x += bs * .52) {
+        g.save(); g.translate(x + (R() - .5) * bs * .3, y + (R() - .5) * bs * .2); g.rotate(R() * PI2); g.scale(1, .6 + R() * .4);
+        g.globalAlpha = .55 + R() * .45; g.drawImage(BEAN, -bs / 2, -bs / 2, bs, bs); g.restore();
+      }
+      g.globalAlpha = 1;
+      var sh = g.createLinearGradient(0, 0, jw, 0);
+      sh.addColorStop(0, "rgba(0,0,0,.6)"); sh.addColorStop(.6, "rgba(0,0,0,.12)"); sh.addColorStop(1, "rgba(255,170,90,.14)");
+      g.fillStyle = sh; g.fillRect(0, 0, jw, jh);
+      g.restore();
+      g.strokeStyle = "rgba(255,230,200,.35)"; g.lineWidth = 1.5; body(); g.stroke();
+      var hl = g.createLinearGradient(0, top, 0, jh);
+      hl.addColorStop(0, "rgba(255,240,220,0)"); hl.addColorStop(.3, "rgba(255,240,220,.38)"); hl.addColorStop(1, "rgba(255,240,220,0)");
+      g.fillStyle = hl; g.fillRect(jw * .08, top + jh * .05, jw * .05, jh * .75); g.fillRect(jw * .85, top + jh * .1, jw * .03, jh * .6);
+      var lg = g.createLinearGradient(0, 0, jw, 0);
+      lg.addColorStop(0, "#3a2010"); lg.addColorStop(.35, "#b07a42"); lg.addColorStop(.55, "#e6b678"); lg.addColorStop(.8, "#8a5528"); lg.addColorStop(1, "#2e1a0c");
+      g.fillStyle = lg;
+      g.fillRect(jw * .03, jh * .015, jw * .94, jh * .085);
+      g.beginPath(); g.ellipse(jw / 2, jh * .1, jw * .47, jh * .03, 0, 0, PI); g.fill();
+      g.fillStyle = "#cf9a5e"; g.beginPath(); g.ellipse(jw / 2, jh * .015, jw * .47, jh * .028, 0, 0, PI2); g.fill();
+      g.strokeStyle = "rgba(40,20,8,.55)"; g.lineWidth = 1;
+      for (i = 1; i < 4; i++) { g.beginPath(); g.moveTo(jw * .03, jh * (.015 + i * .02)); g.lineTo(jw * .97, jh * (.015 + i * .02)); g.stroke(); }
+    });
+    var cw = u * 1.15, chh = u * .42;
+    var cloth = sprite(Math.ceil(cw), Math.ceil(chh), function (g) {
+      var cg = g.createLinearGradient(0, 0, cw, chh);
+      cg.addColorStop(0, "#4d423b"); cg.addColorStop(.55, "#2b2420"); cg.addColorStop(1, "#151110");
+      g.fillStyle = cg;
+      g.beginPath(); g.moveTo(cw * .04, chh * .5);
+      g.bezierCurveTo(cw * .06, chh * .2, cw * .3, chh * .14, cw * .55, chh * .2);
+      g.bezierCurveTo(cw * .78, chh * .26, cw * .96, chh * .34, cw * .96, chh * .6);
+      g.bezierCurveTo(cw * .96, chh * .9, cw * .7, chh * .97, cw * .45, chh * .96);
+      g.bezierCurveTo(cw * .2, chh * .95, cw * .02, chh * .86, cw * .04, chh * .5); g.closePath(); g.fill();
+      g.strokeStyle = "rgba(255,214,170,.1)"; g.lineWidth = 2;
+      for (i = 0; i < 5; i++) {
+        g.beginPath(); g.moveTo(cw * (.1 + i * .16), chh * .3); g.bezierCurveTo(cw * (.16 + i * .16), chh * .55, cw * (.12 + i * .16), chh * .7, cw * (.2 + i * .16), chh * .92); g.stroke();
+      }
+      g.strokeStyle = "rgba(0,0,0,.35)"; g.lineWidth = 3;
+      for (i = 0; i < 4; i++) { g.beginPath(); g.moveTo(cw * (.18 + i * .18), chh * .28); g.quadraticCurveTo(cw * (.24 + i * .18), chh * .6, cw * (.2 + i * .18), chh * .94); g.stroke(); }
+    });
+    var wood = sprite(512, 256, function (g) {
+      for (i = 0; i < 90; i++) {
+        var y = R() * 256, light = R() < .5;
+        g.strokeStyle = light ? "rgba(200,130,70," + (.05 + R() * .12) + ")" : "rgba(0,0,0," + (.1 + R() * .25) + ")";
+        g.lineWidth = .5 + R() * 2.5;
+        g.beginPath(); g.moveTo(0, y);
+        for (var x = 0; x <= 512; x += 64) g.lineTo(x, y + Math.sin(x * .01 + i) * (1 + R() * 2));
+        g.stroke();
+      }
+    });
+    var leaves = sprite(256, 256, function (g) {
+      g.fillStyle = "#1c2112";
+      for (i = 0; i < 9; i++) {
+        g.save(); g.translate(60 + R() * 140, 60 + R() * 150); g.rotate(-1.2 + R() * 2.4);
+        g.beginPath(); g.ellipse(0, -40, 16 + R() * 10, 48 + R() * 20, 0, 0, PI2); g.fill(); g.restore();
+      }
+    });
+    var beansT = [];
+    for (i = 0; i < 16; i++) {
+      var bx = G.cx + (R() * 2.8 - 1.7) * u, by = G.B - G.h * .04 + R() * G.h * .42;
+      if (Math.abs(bx - G.cx) < u * .6 && by < G.B + G.h * .12) continue;
+      beansT.push({ x: bx, y: by, s: u * .075 * (.8 + R() * .4) * (1 + (by - G.B) / G.h * .5), r: R() * PI2, a: .65 + R() * .35 });
+    }
+    SET = {
+      jar: soften(jar, 1.5), cloth: soften(cloth, 1.3), wood: wood, leaves: soften(soften(leaves, 6), 2),
+      jw: jw + 20, jh: jh + 20, cw: cw, chh: chh, beans: beansT,
+      jx: Math.min(G.cx - u * 1.3 - jw * .2, G.cx - u * .6 - jw - 20), jy: G.B - G.h * .1 - jh
+    };
+  }
+  function drawSetBack(a) {
+    if (a <= 0 || !SET) return;
+    var u = G.tw, hz = G.B - G.h * .5, L = G.cx - W * 1.3, Rr = G.cx + W * 1.3, bot = G.cy + H * 1.3;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.drawImage(SET.leaves, G.cx - u * 2.3, hz - u * 1.8, u * 1.5, u * 1.5);
+    ctx.drawImage(SET.leaves, G.cx + u * 1.2, hz - u * 2.1, u * 1.2, u * 1.2);
+    var tg = ctx.createLinearGradient(0, hz, 0, G.B + G.h * 1.1);
+    tg.addColorStop(0, "#170d06"); tg.addColorStop(.4, "#311b0d"); tg.addColorStop(1, "#0c0603");
+    ctx.fillStyle = tg; ctx.fillRect(L, hz, Rr - L, bot - hz);
+    ctx.globalAlpha = a * .4; ctx.drawImage(SET.wood, L, hz, Rr - L, bot - hz); ctx.globalAlpha = a;
+    ctx.save(); ctx.translate(G.cx, G.B + G.h * .04); ctx.scale(1, .26);
+    var lp = ctx.createRadialGradient(0, 0, 0, 0, 0, u * 1.5);
+    lp.addColorStop(0, "rgba(214,130,60,.42)"); lp.addColorStop(1, "rgba(214,130,60,0)");
+    ctx.fillStyle = lp; ctx.beginPath(); ctx.arc(0, 0, u * 1.5, 0, PI2); ctx.fill();
+    var cs = ctx.createRadialGradient(0, 0, 0, 0, 0, u * .5);
+    cs.addColorStop(0, "rgba(0,0,0,.55)"); cs.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = cs; ctx.beginPath(); ctx.arc(0, 0, u * .5, 0, PI2); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = "rgba(255,190,120,.1)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, hz); ctx.lineTo(Rr, hz); ctx.stroke();
+    ctx.drawImage(SET.jar, SET.jx, SET.jy, SET.jw, SET.jh);
+    for (var i = 0; i < SET.beans.length; i++) {
+      var b = SET.beans[i];
+      if (b.y > G.B) continue;
+      drawBean(b.x, b.y, b.s, b.r, .5, b.a * a, false);
+    }
+    ctx.restore();
+  }
+  function drawSetFront(a) {
+    if (a <= 0 || !SET) return;
+    ctx.save(); ctx.globalAlpha = a;
+    for (var i = 0; i < SET.beans.length; i++) {
+      var b = SET.beans[i];
+      if (b.y <= G.B) continue;
+      drawBean(b.x, b.y, b.s, b.r, .5, b.a * a, false);
+    }
+    ctx.drawImage(SET.cloth, SET.jx - G.tw * .35, G.B + G.h * .02, SET.cw, SET.chh);
+    ctx.restore();
+  }
+
+  /* ---------- Mão com a tigela de pó (cenas 3 a 5), como na referência ---------- */
+  function pourWin() { var a = B[4], d = B[5] - B[4]; return [a + d * .22, a + d * .8]; }
+  function handPose(p) {
     if (p < B[2] || p >= B[5]) return null;
-    var u = G.tw, k = Math.max(.6, Math.min(1, W / (u * 2.6)));
-    var restX = Math.min(G.cx + u * .66, W - u * k * 1.12), restY = G.T - G.h * (k < 1 ? .62 : .42);
-    var e = smooth(clamp(beat(p, 2) * 1.35));
-    var x = lerp(W + u * 1.3, restX, e), y = lerp(restY - G.h * .45, restY, e), a = 0;
+    var u = G.tw, k = Math.max(.62, Math.min(1, W / (u * 2.4)));
+    var restX = Math.min(G.cx + u * .62, W - u * k * .55), restY = G.T - G.h * .62;
+    var e = smooth(clamp(beat(p, 2) * 1.3));
+    var x = lerp(W + u * 1.2, restX, e), y = lerp(-G.h * .6, restY, e), a = 0;
     if (p >= B[4]) {
       var k5 = beat(p, 4);
-      var mv = smooth(seg(k5, 0, .26)), tl = smooth(seg(k5, .18, .5)), ex = smooth(seg(k5, .74, 1));
-      x = lerp(restX, G.cx + u * .2 * k, mv); y = lerp(restY, G.T - G.h * .34, mv);
-      a = -1.05 * tl * (1 - ex * .7);
-      x = lerp(x, W + u * 1.5, ex); y = lerp(y, restY - G.h * .9, ex);
+      var mv = smooth(seg(k5, 0, .2)), tl = smooth(seg(k5, .12, .3)), ex = smooth(seg(k5, .84, 1));
+      x = lerp(restX, G.cx + u * .3 * k, mv); y = lerp(restY, G.T - G.h * .52, mv);
+      a = -.95 * tl * (1 - ex);
+      x = lerp(x, W + u * 1.4, ex); y = lerp(y, -G.h * .8, ex);
     }
     return { x: x, y: y, a: a, k: k };
-  }
-  function heapLocal(d) {
-    var lx = (d.r1 - .5) * 2, u = G.tw;
-    return [lx * .12 * u, -.03 * u - (1 - lx * lx) * .065 * u * d.r2];
   }
   function toWorld(s, l) {
     var c = Math.cos(s.a), n = Math.sin(s.a), lx = l[0] * s.k, ly = l[1] * s.k;
     return [s.x + c * lx - n * ly, s.y + n * lx + c * ly];
   }
-  function fallStart(d) { return B[4] + (B[5] - B[4]) * (.3 + d.r3 * .38); }
+  function moundH(p) {
+    var w = pourWin();
+    return G.h * .34 * Math.pow(seg(p, w[0] + .006, w[1] + .008), .85) * (1 - smooth(seg(p, B[5], B[5] + .06)) * .75);
+  }
 
   function drawDust(p, t) {
-    if (p < B[1] || p > B[5] + .05) return;
-    var k2 = beat(p, 1), fd = (B[5] - B[4]) * .15;
-    var cover = 1 - seg(p, B[5] + .02, B[5] + .05);
+    if (p < B[1] || p > B[2] + .03) return;
+    var k2 = beat(p, 1);
     for (var c = 0; c < 4; c++) {
       ctx.fillStyle = DUST_COLORS[c];
       for (var i = 0; i < dust.length; i++) {
         var d = dust[i];
-        if (d.c !== c) continue;
-        var x, y, a, size = 1.1 + d.r1 * 2.4;
-        if (!d.h) {
-          // pó que sai dos grãos ao serem moídos e cai
-          if (p > B[2] + .03) continue;
-          x = G.cx + (d.r1 - .5) * G.tw * .32 + Math.sin(d.a + t) * 3;
-          y = lerp(H * .05, H * 1.05, d.r2) + k2 * G.h * .45;
-          a = seg(k2, .3 + d.r3 * .3, .6 + d.r3 * .3) * (1 - seg(p, B[2], B[2] + .03));
-        } else {
-          // pó da colher: cai na xícara com gravidade e assenta no fundo
-          var ps = fallStart(d);
-          if (p < ps) continue;
-          var o = toWorld(spoonPose(ps), heapLocal(d));
-          var k = clamp((p - ps) / fd);
-          var sx = G.cx + (d.r1 - .5) * G.inner.bw * .95, sy = G.inner.B - d.r2 * G.h * .07;
-          x = lerp(o[0], sx, smooth(k)) + Math.sin(d.a + k * 6) * G.tw * .012 * (1 - k);
-          y = lerp(o[1], sy, k * k);
-          a = cover;
-        }
+        if (d.h || d.c !== c) continue;
+        var a = seg(k2, .3 + d.r3 * .3, .6 + d.r3 * .3) * (1 - seg(p, B[2], B[2] + .03));
         if (a <= .01) continue;
+        var size = 1.1 + d.r1 * 2.4;
         ctx.globalAlpha = a;
-        ctx.fillRect(x, y, size, size);
+        ctx.fillRect(G.cx + (d.r1 - .5) * G.tw * .32 + Math.sin(d.a + t) * 3, lerp(H * .05, H * 1.05, d.r2) + k2 * G.h * .45, size, size);
       }
     }
     ctx.globalAlpha = 1;
   }
 
-  function drawSpoonHand(p, t) {
-    var s = spoonPose(p);
+  // Fio de pó caindo da tigela, com poeira em volta
+  function drawPowderStream(p, t) {
+    var s = handPose(p), w = pourWin();
+    if (!s || p < w[0] || p > w[1] + .008) return;
+    var head = clamp((p - w[0]) / .007), tail = clamp((p - w[1]) / .008);
+    if (head - tail < .01) return;
+    var lip = toWorld(s, [-G.tw * .2, -G.tw * .005]);
+    var bx = G.cx + G.tw * .05, by = G.inner.B - moundH(p) + 2;
+    var u = G.tw, N = 24, i, f, pts = [];
+    for (i = 0; i <= N; i++) {
+      f = lerp(tail, head, i / N);
+      pts.push([lerp(lip[0], bx, 1 - (1 - f) * (1 - f)), lerp(lip[1], by, f), u * (.018 + .045 * f)]);
+    }
+    ctx.save();
+    ctx.beginPath();
+    for (i = 0; i <= N; i++) ctx.lineTo(pts[i][0] - pts[i][2] / 2, pts[i][1]);
+    for (i = N; i >= 0; i--) ctx.lineTo(pts[i][0] + pts[i][2] / 2, pts[i][1]);
+    ctx.closePath();
+    var sg = ctx.createLinearGradient(0, lip[1], 0, by);
+    sg.addColorStop(0, "rgba(120,62,26,.85)"); sg.addColorStop(1, "rgba(92,46,18,.35)");
+    ctx.fillStyle = sg; ctx.fill();
+    var n = W < 700 ? 90 : 150;
+    for (var c = 0; c < 4; c++) {
+      ctx.fillStyle = DUST_COLORS[c];
+      for (i = c; i < n; i += 4) {
+        f = (hash(i) + (reduce ? 0 : t * (1.1 + hash(i + 9) * .8))) % 1;
+        if (f < tail || f > head) continue;
+        var spread = u * (.012 + .05 * f) * (hash(i + 3) - .5) * 2;
+        var x = lerp(lip[0], bx, 1 - (1 - f) * (1 - f)) + spread + Math.sin(t * 3 + i) * u * .004 * f;
+        var y = lerp(lip[1], by, f);
+        ctx.globalAlpha = .9 - f * .3;
+        ctx.fillRect(x, y, .9 + hash(i + 5) * 1.8, .9 + hash(i + 5) * 1.8);
+      }
+    }
+    // poeira suspensa
+    ctx.globalCompositeOperation = "screen";
+    for (i = 0; i < 9; i++) {
+      f = (hash(i + 40) + (reduce ? 0 : t * .25)) % 1;
+      var px = lerp(lip[0], bx, f) + (hash(i + 50) - .5) * u * .25, py = lerp(lip[1], by, .3 + f * .7);
+      var ds = u * (.12 + hash(i + 60) * .2);
+      ctx.globalAlpha = .1 * Math.sin(f * PI) * (head - tail);
+      ctx.drawImage(DUSTPUFF, px - ds / 2, py - ds / 2, ds, ds);
+    }
+    ctx.restore();
+  }
+
+  function drawBowlHand(p, t) {
+    var s = handPose(p);
     if (!s) return;
-    var u = G.tw;
+    var u = G.tw, w = pourWin(), i;
     function P(x, y) { return [x * u, y * u]; }
     function path(pts) {
       ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
-      for (var i = 1; i < pts.length; i += 3) ctx.bezierCurveTo(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], pts[i + 2][0], pts[i + 2][1]);
+      for (var j = 1; j < pts.length; j += 3) ctx.bezierCurveTo(pts[j][0], pts[j][1], pts[j + 1][0], pts[j + 1][1], pts[j + 2][0], pts[j + 2][1]);
       ctx.closePath();
     }
+    function rim(a, b, c, d) { ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.bezierCurveTo(b[0], b[1], c[0], c[1], d[0], d[1]); ctx.stroke(); }
     ctx.save();
-    ctx.translate(s.x, s.y + Math.sin(t * 1.4) * u * .006);
-    ctx.rotate(s.a);
-    ctx.scale(s.k, s.k);
+    ctx.translate(s.x, s.y + Math.sin(t * 1.3) * u * .006);
+    ctx.rotate(s.a); ctx.scale(s.k, s.k);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
 
-    // antebraço (sai pela direita, para cima)
-    var ag = ctx.createLinearGradient(P(1.6, -.62)[0], P(1.6, -.62)[1], P(1.78, -.2)[0], P(1.78, -.2)[1]);
-    ag.addColorStop(0, "#a8724c"); ag.addColorStop(.35, "#6b4129"); ag.addColorStop(1, "#24140b");
+    // antebraço subindo para o canto superior direito
+    var ag = ctx.createLinearGradient(P(.7, -.85)[0], P(.7, -.85)[1], P(1, -.4)[0], P(1, -.4)[1]);
+    ag.addColorStop(0, "#b07850"); ag.addColorStop(.35, "#6e432a"); ag.addColorStop(1, "#22130a");
     ctx.fillStyle = ag;
-    path([P(1.06, -.13), P(1.5, -.34), P(2, -.6), P(2.5, -.82), P(2.62, -.6), P(2.66, -.4), P(2.66, -.36), P(2.1, -.1), P(1.6, .06), P(1.16, .1)]);
+    path([P(.16, -.18), P(.45, -.45), P(.9, -.85), P(1.3, -1.3), P(1.55, -1.1), P(1.72, -.92), P(1.75, -.86), P(1.22, -.46), P(.72, -.1), P(.44, .04)]);
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,190,122,.42)"; ctx.lineWidth = u * .007;
-    ctx.beginPath(); ctx.moveTo(P(1.06, -.13)[0], P(1.06, -.13)[1]); ctx.bezierCurveTo(P(1.5, -.34)[0], P(1.5, -.34)[1], P(2, -.6)[0], P(2, -.6)[1], P(2.5, -.82)[0], P(2.5, -.82)[1]); ctx.stroke();
-
+    ctx.strokeStyle = "rgba(255,192,126,.45)"; ctx.lineWidth = u * .007;
+    rim(P(.16, -.18), P(.45, -.45), P(.9, -.85), P(1.3, -1.3));
     // punho da camisa
-    var cg2 = ctx.createLinearGradient(P(1.5, -.45)[0], P(1.5, -.45)[1], P(1.62, -.1)[0], P(1.62, -.1)[1]);
-    cg2.addColorStop(0, "#3a3a3d"); cg2.addColorStop(.4, "#1c1c1f"); cg2.addColorStop(1, "#0c0c0e");
+    var cg2 = ctx.createLinearGradient(P(1, -1.1)[0], P(1, -1.1)[1], P(1.4, -.8)[0], P(1.4, -.8)[1]);
+    cg2.addColorStop(0, "#3c3c40"); cg2.addColorStop(.45, "#1c1c1f"); cg2.addColorStop(1, "#0b0b0d");
     ctx.fillStyle = cg2;
-    path([P(1.42, -.3), P(1.55, -.37), P(1.68, -.44), P(1.8, -.5), P(1.88, -.32), P(1.9, -.14), P(1.9, -.1), P(1.78, -.05), P(1.64, .01), P(1.5, .06)]);
+    path([P(.98, -.98), P(1.1, -1.12), P(1.22, -1.24), P(1.32, -1.34), P(1.5, -1.16), P(1.64, -1.02), P(1.68, -.98), P(1.5, -.84), P(1.3, -.7), P(1.16, -.6)]);
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,214,170,.3)"; ctx.lineWidth = u * .006;
-    ctx.beginPath(); ctx.moveTo(P(1.42, -.3)[0], P(1.42, -.3)[1]); ctx.lineTo(P(1.5, .06)[0], P(1.5, .06)[1]); ctx.stroke();
 
-    // cabo da colher (passa por baixo dos dedos)
-    var hg = ctx.createLinearGradient(0, -u * .03, 0, u * .02);
-    hg.addColorStop(0, "#f1ebe3"); hg.addColorStop(.45, "#9b938b"); hg.addColorStop(1, "#3a3531");
-    ctx.fillStyle = hg;
-    ctx.beginPath();
-    ctx.moveTo(u * .14, -u * .012); ctx.lineTo(u * 1.3, -u * .07); ctx.lineTo(u * 1.31, -u * .03); ctx.lineTo(u * .14, u * .012);
-    ctx.closePath(); ctx.fill();
-
-    // concha da colher
-    var bg = ctx.createRadialGradient(-u * .05, -u * .03, 0, 0, 0, u * .19);
-    bg.addColorStop(0, "#f6f0e8"); bg.addColorStop(.5, "#a39b92"); bg.addColorStop(1, "#34302c");
-    ctx.fillStyle = bg;
-    ctx.beginPath(); ctx.ellipse(0, 0, u * .17, u * .075, 0, 0, PI2); ctx.fill();
-    ctx.fillStyle = "rgba(40,34,30,.55)";
-    ctx.beginPath(); ctx.ellipse(0, -u * .012, u * .148, u * .045, 0, 0, PI2); ctx.fill();
-
-    // monte de pó: diminui conforme o pó cai
-    var rem = 1 - (p >= B[4] ? clamp((p - fallStart({ r3: 0 })) / ((B[5] - B[4]) * .38)) : 0);
+    // tigela de cerâmica escura
+    var cb = ctx.createLinearGradient(-u * .2, 0, u * .2, 0);
+    cb.addColorStop(0, "#4a413b"); cb.addColorStop(.35, "#1d1916"); cb.addColorStop(1, "#060505");
+    ctx.fillStyle = cb;
+    ctx.beginPath(); ctx.ellipse(0, 0, u * .2, u * .17, 0, 0, PI); ctx.fill();
+    ctx.strokeStyle = "rgba(255,190,120,.35)"; ctx.lineWidth = u * .006;
+    ctx.beginPath(); ctx.ellipse(0, 0, u * .2, u * .17, 0, PI * .55, PI * .95); ctx.stroke();
+    ctx.fillStyle = "#0d0a08";
+    ctx.beginPath(); ctx.ellipse(0, 0, u * .2, u * .06, 0, 0, PI2); ctx.fill();
+    // pó dentro da tigela: diminui conforme despeja
+    var rem = 1 - seg(p, w[0], w[1]);
     if (rem > 0) {
-      var mg = ctx.createRadialGradient(-u * .03, -u * .06, 0, 0, -u * .02, u * .16);
-      mg.addColorStop(0, "#8a5228"); mg.addColorStop(.6, "#4d2810"); mg.addColorStop(1, "#221106");
-      ctx.fillStyle = mg;
-      ctx.beginPath(); ctx.ellipse(0, -u * .02, u * .14 * Math.sqrt(rem), u * .07 * rem, 0, PI, PI2); ctx.closePath(); ctx.fill();
-    }
-    for (var c = 0; c < 4; c++) {
-      ctx.fillStyle = DUST_COLORS[c];
-      for (var i = 0; i < dust.length; i++) {
-        var d = dust[i];
-        if (!d.h || d.c !== c || p >= fallStart(d)) continue;
-        var l = heapLocal(d), z = .7 + d.r1 * 1.3;
-        ctx.beginPath(); ctx.arc(l[0], l[1], z, 0, PI2); ctx.fill();
+      var pg = ctx.createRadialGradient(-u * .05, -u * .01, 0, 0, 0, u * .18);
+      pg.addColorStop(0, "#9a5c2e"); pg.addColorStop(.6, "#5c2f14"); pg.addColorStop(1, "#2a1407");
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.ellipse(0, u * .006 * (1 - rem), u * .18 * (.55 + .45 * rem), u * .05 * (.5 + .5 * rem), 0, 0, PI2); ctx.fill();
+      for (var c = 0; c < 4; c++) {
+        ctx.fillStyle = DUST_COLORS[c];
+        for (i = 0; i < dust.length; i++) {
+          var d = dust[i];
+          if (!d.h || d.c !== c || d.r3 > rem) continue;
+          var lx = (d.r1 - .5) * 2;
+          ctx.beginPath(); ctx.arc(lx * .15 * u * (.55 + .45 * rem), (d.r2 - .5) * .07 * u * rem, .6 + d.r1 * 1.1, 0, PI2); ctx.fill();
+        }
       }
     }
+    ctx.strokeStyle = "rgba(255,226,196,.38)"; ctx.lineWidth = u * .006;
+    ctx.beginPath(); ctx.ellipse(0, 0, u * .2, u * .06, 0, PI * .9, PI * 2.1); ctx.stroke();
 
-    // mão fechada segurando o cabo
-    var fg = ctx.createRadialGradient(P(.9, -.12)[0], P(.9, -.12)[1], 0, P(.98, -.02)[0], P(.98, -.02)[1], u * .3);
-    fg.addColorStop(0, "#b47c55"); fg.addColorStop(.5, "#784a2f"); fg.addColorStop(1, "#2a170c");
+    // costas da mão por cima da borda direita
+    var fg = ctx.createRadialGradient(P(.26, -.18)[0], P(.26, -.18)[1], 0, P(.32, -.05)[0], P(.32, -.05)[1], u * .3);
+    fg.addColorStop(0, "#c08a62"); fg.addColorStop(.5, "#7c4c30"); fg.addColorStop(1, "#2a170c");
     ctx.fillStyle = fg;
-    path([P(.8, -.08), P(.8, -.17), P(.92, -.2), P(1.02, -.18), P(1.12, -.16), P(1.18, -.1), P(1.19, -.02), P(1.2, .06), P(1.12, .13), P(1, .13), P(.9, .13), P(.82, .09), P(.8, .03)]);
+    path([P(.1, -.1), P(.13, -.21), P(.3, -.26), P(.43, -.19), P(.54, -.11), P(.53, .04), P(.44, .08), P(.33, .13), P(.21, .11), P(.14, .05)]);
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,190,122,.4)"; ctx.lineWidth = u * .006;
-    ctx.beginPath(); ctx.moveTo(P(.8, -.08)[0], P(.8, -.08)[1]); ctx.bezierCurveTo(P(.8, -.17)[0], P(.8, -.17)[1], P(.92, -.2)[0], P(.92, -.2)[1], P(1.02, -.18)[0], P(1.02, -.18)[1]); ctx.stroke();
-    // dedos curvados em volta do cabo
-    for (i = 0; i < 4; i++) {
-      var fx = (.835 + i * .066) * u, fy2 = (.04 + i * .006) * u;
-      var dg = ctx.createLinearGradient(fx - u * .04, 0, fx + u * .04, 0);
-      dg.addColorStop(0, "#c89064"); dg.addColorStop(.6, "#8a5636"); dg.addColorStop(1, "#3c2213");
+    ctx.strokeStyle = "rgba(255,196,130,.42)"; ctx.lineWidth = u * .006;
+    rim(P(.1, -.1), P(.13, -.21), P(.3, -.26), P(.43, -.19));
+    // dedos envolvendo a tigela por fora
+    for (i = 0; i < 3; i++) {
+      var fx = (.2 - i * .055) * u, fy = (.07 + i * .04) * u;
+      var dg = ctx.createLinearGradient(fx - u * .06, fy, fx + u * .06, fy);
+      dg.addColorStop(0, "#c99266"); dg.addColorStop(.55, "#8a5636"); dg.addColorStop(1, "#3c2213");
       ctx.fillStyle = dg;
-      ctx.beginPath(); ctx.ellipse(fx, fy2, u * .037, u * .064, -.12, 0, PI2); ctx.fill();
-      ctx.strokeStyle = "rgba(30,14,6,.55)"; ctx.lineWidth = u * .004; ctx.stroke();
-      ctx.strokeStyle = "rgba(40,18,8,.45)";
-      ctx.beginPath(); ctx.arc(fx, fy2 + u * .012, u * .022, PI * .15, PI * .85); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(fx, fy, u * .07, u * .028, .45, 0, PI2); ctx.fill();
+      ctx.strokeStyle = "rgba(30,14,6,.5)"; ctx.lineWidth = u * .004; ctx.stroke();
     }
-    ctx.strokeStyle = "rgba(255,206,160,.28)"; ctx.lineWidth = u * .005;
-    for (i = 0; i < 4; i++) {
-      var kx = (.86 + i * .06) * u;
-      ctx.beginPath(); ctx.arc(kx, -.165 * u, u * .028, PI * 1.15, PI * 1.85); ctx.stroke();
-    }
-    // polegar por cima do cabo
-    var tg = ctx.createLinearGradient(0, -u * .14, 0, -u * .02);
-    tg.addColorStop(0, "#c08a62"); tg.addColorStop(1, "#5a3520");
+    // polegar por cima da borda
+    var tg = ctx.createLinearGradient(0, -u * .15, 0, -u * .04);
+    tg.addColorStop(0, "#c48e66"); tg.addColorStop(1, "#5c3721");
     ctx.fillStyle = tg;
-    path([P(1.02, -.12), P(.95, -.135), P(.86, -.105), P(.765, -.068), P(.72, -.05), P(.73, -.02), P(.775, -.02), P(.86, -.03), P(.95, -.05), P(1.04, -.05)]);
+    path([P(.2, -.12), P(.12, -.145), P(.02, -.11), P(-.05, -.082), P(-.085, -.07), P(-.075, -.045), P(-.035, -.048), P(.05, -.058), P(.13, -.06), P(.22, -.06)]);
     ctx.fill();
-    ctx.fillStyle = "rgba(240,204,172,.32)";
-    ctx.beginPath(); ctx.ellipse(u * .772, -u * .046, u * .024, u * .011, -.25, 0, PI2); ctx.fill();
-    ctx.strokeStyle = "rgba(255,196,130,.45)"; ctx.lineWidth = u * .005;
-    ctx.beginPath(); ctx.moveTo(P(1.02, -.12)[0], P(1.02, -.12)[1]); ctx.bezierCurveTo(P(.95, -.135)[0], P(.95, -.135)[1], P(.86, -.105)[0], P(.86, -.105)[1], P(.765, -.068)[0], P(.765, -.068)[1]); ctx.stroke();
+    ctx.fillStyle = "rgba(240,206,176,.34)";
+    ctx.beginPath(); ctx.ellipse(-.058 * u, -.062 * u, u * .022, u * .01, -.2, 0, PI2); ctx.fill();
+    ctx.strokeStyle = "rgba(255,198,134,.45)"; ctx.lineWidth = u * .005;
+    rim(P(.2, -.12), P(.12, -.145), P(.02, -.11), P(-.05, -.082));
     ctx.restore();
   }
 
@@ -1209,19 +1350,25 @@ main .btn, main .tab { text-shadow: none; }
 
   function drawLiquid(p, t, L) {
     var inn = G.inner;
-    var settled = seg(p, B[4] + .02, B[5]);
-    var cover = 1 - seg(p, B[5] + .02, B[5] + .05);
     ctx.save();
     ctx.beginPath(); bowlPath(ctx, inn, true); ctx.clip();
-    // camada de pó no fundo
-    if (settled > 0 && cover > 0) {
-      var ph = G.h * .07 * settled;
-      ctx.globalAlpha = cover;
-      var pg = ctx.createLinearGradient(0, inn.B - ph, 0, inn.B);
-      pg.addColorStop(0, "#6b3a1a"); pg.addColorStop(1, "#2b1407");
-      ctx.fillStyle = pg;
-      ctx.beginPath(); ctx.ellipse(G.cx, inn.B - ph * .2, inn.bw * .55, ph, 0, PI, PI2); ctx.lineTo(G.cx + inn.tw, inn.B + 4); ctx.lineTo(G.cx - inn.tw, inn.B + 4); ctx.fill();
-      ctx.globalAlpha = 1;
+    // monte de pó que cresce no fundo da xícara
+    var mh = moundH(p);
+    if (mh > .5) {
+      var bw2 = inn.bw * .98, by0 = inn.B + 2, px = G.cx + G.tw * .05, i;
+      var mg = ctx.createLinearGradient(0, by0 - mh, 0, by0);
+      mg.addColorStop(0, "#94582c"); mg.addColorStop(.45, "#5c3015"); mg.addColorStop(1, "#22100a");
+      ctx.fillStyle = mg;
+      ctx.beginPath(); ctx.moveTo(G.cx - inn.tw / 2 - 4, by0);
+      ctx.bezierCurveTo(G.cx - bw2 * .5, by0 - mh * .12, px - bw2 * .2, by0 - mh, px, by0 - mh);
+      ctx.bezierCurveTo(px + bw2 * .2, by0 - mh, G.cx + bw2 * .5, by0 - mh * .12, G.cx + inn.tw / 2 + 4, by0);
+      ctx.closePath(); ctx.fill();
+      for (i = 0; i < 110; i++) {
+        var q = hash(i * 3.1) * 2 - 1, hx = px + q * bw2 * .5;
+        var hy = by0 - mh * Math.max(0, 1 - Math.pow(Math.abs(q), 1.5)) * (.15 + .85 * hash(i * 7.7));
+        ctx.fillStyle = DUST_COLORS[i % 4];
+        ctx.fillRect(hx, hy, 1 + hash(i) * 1.6, 1 + hash(i) * 1.6);
+      }
     }
     if (L.level > 0) {
       var sY = inn.B - L.level * (inn.B - inn.T);
@@ -1470,15 +1617,19 @@ main .btn, main .tab { text-shadow: none; }
     var cam = camera(p), s = cam[0];
     ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (W / 2 - W / 2 * s), dpr * (H / 2 - cam[1] * s));
     var L = liquid(p);
+    SETA = smooth(seg(p, B[2] - .02, B[3]));
+    drawSetBack(SETA);
     drawBeans(p, t, false);
     drawSaucer(p);
     drawGlassBack(form);
     drawLiquid(p, t, L);
     var kp = kettlePose(p);
     drawStream(p, t, L, kp);
+    drawPowderStream(p, t);
     drawDust(p, t);
     drawGlassFront(form, p, t);
-    drawSpoonHand(p, t);
+    drawSetFront(SETA);
+    drawBowlHand(p, t);
     drawKettle(kp);
     drawSteam(p, t);
     drawBeans(p, t, true);

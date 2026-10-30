@@ -738,7 +738,8 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   if (!section || !ctx) return;
   document.documentElement.classList.add("film-on");
 
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // O filme toca para todos, inclusive com "reduzir animações" ligado; quem preferir usa o botão Pausar.
+  var reduce = false;
   var PI = Math.PI, PI2 = PI * 2;
   function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function lerp(a, b, k) { return a + (b - a) * k; }
@@ -1338,8 +1339,8 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   }
 
   /* ---------- Laço: só roda com a seção na tela ---------- */
-  // Toca sozinho: 12 cenas em 30 s e recomeça. Com "reduzir movimento", começa parado na xícara pronta.
-  var D = 30, clock = reduce ? D * .9 : 0, amb = 0, paused = reduce;
+  // Toca sozinho: 12 cenas em 30 s e recomeça.
+  var D = 30, clock = 0, amb = 0, paused = false;
   var cur = 0, last = 0, running = false, visible = false, dirty = true;
   var pauseBtn = document.getElementById("filmPause");
   function setPaused(v) {

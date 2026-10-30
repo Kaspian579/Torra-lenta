@@ -252,8 +252,11 @@ main .btn, main .tab { text-shadow: none; }
   position: relative; min-height: 70vh; display: grid; place-items: center; overflow: hidden;
   isolation: isolate;
 }
-.film-on .film { height: 640vh; }
-.film-on .film-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 0; }
+.film-on .film-sticky {
+  height: calc(100vh - var(--header-h));
+  height: calc(100svh - var(--header-h) - env(safe-area-inset-top, 0px));
+  min-height: 480px;
+}
 .film-bg {
   position: fixed; left: 0; right: 0; top: 0; z-index: 0; pointer-events: none; overflow: hidden;
   height: 100vh; height: 100lvh; background: #0a0604;
@@ -263,19 +266,12 @@ main .btn, main .tab { text-shadow: none; }
 .film-frames { position: absolute; inset: 0; }
 .ff { position: absolute; inset: 0; overflow: hidden; opacity: 0; }
 .ff:first-child { opacity: 1; }
-.ff-fill {
-  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  filter: blur(26px) brightness(.5) saturate(1.1); transform: scale(1.15);
-}
+.ff-fill { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .ff-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .film-on .ff { visibility: hidden; will-change: opacity; }
 .film-on .ff-img {
   inset: auto; left: 0; top: 0; width: auto; height: auto; max-width: none; object-fit: fill;
   transform-origin: 0 0; will-change: transform;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
-  mask-composite: intersect;
 }
 .film-bg::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
@@ -348,12 +344,11 @@ main .btn, main .tab { text-shadow: none; }
   padding-left: var(--gutter-l); padding-right: var(--gutter-r);
   opacity: 0; visibility: hidden;
 }
-.film-end p { font: 600 clamp(1.3rem, 5.4vw, 2.4rem)/1.25 var(--font-display); letter-spacing: .22em; text-transform: uppercase; color: var(--film-gold); }
+.film-end p { font: 600 clamp(1.3rem, 5.4vw, 2.4rem)/1.25 var(--font-display); letter-spacing: .22em; text-transform: uppercase; color: var(--film-gold); text-shadow: 0 2px 22px rgba(0, 0, 0, .9), 0 0 2px rgba(0, 0, 0, .6); }
 @media (min-width: 760px) {
   .film-caption { bottom: 64px; }
   .film-bar { bottom: 40px; max-width: 420px; }
   .bg-pause { bottom: 24px; }
-  .film-on .film { height: 720vh; }
 }
 @media (hover: hover) and (pointer: fine) {
   .film-skip, .bg-pause { transition: color 160ms ease, border-color 160ms ease; }
@@ -405,19 +400,19 @@ main .btn, main .tab { text-shadow: none; }
 
 <div class="film-bg" aria-hidden="true">
   <div class="film-frames" id="filmFrames">
-    <div class="ff"><img class="ff-fill" src="film/f01.jpg" alt="" decoding="async"><img class="ff-img" src="film/f01.jpg" width="796" height="534" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f02.jpg" alt="" decoding="async"><img class="ff-img" src="film/f02.jpg" width="806" height="534" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f03.jpg" alt="" decoding="async"><img class="ff-img" src="film/f03.jpg" width="794" height="534" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f04.jpg" alt="" decoding="async"><img class="ff-img" src="film/f04.jpg" width="796" height="532" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f05.jpg" alt="" decoding="async"><img class="ff-img" src="film/f05.jpg" width="806" height="532" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f06.jpg" alt="" decoding="async"><img class="ff-img" src="film/f06.jpg" width="794" height="532" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f07.jpg" alt="" decoding="async"><img class="ff-img" src="film/f07.jpg" width="796" height="528" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f08.jpg" alt="" decoding="async"><img class="ff-img" src="film/f08.jpg" width="596" height="540" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f09.jpg" alt="" decoding="async"><img class="ff-img" src="film/f09.jpg" width="598" height="540" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f10.jpg" alt="" decoding="async"><img class="ff-img" src="film/f10.jpg" width="594" height="540" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f11.jpg" alt="" decoding="async"><img class="ff-img" src="film/f11.jpg" width="594" height="664" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f12.jpg" alt="" decoding="async"><img class="ff-img" src="film/f12.jpg" width="596" height="664" alt="" decoding="async"></div>
-    <div class="ff"><img class="ff-fill" src="film/f13.jpg" alt="" decoding="async"><img class="ff-img" src="film/f13.jpg" width="598" height="664" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f01-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f01.jpg" width="796" height="534" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f02-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f02.jpg" width="806" height="534" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f03-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f03.jpg" width="794" height="534" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f04-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f04.jpg" width="796" height="532" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f05-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f05.jpg" width="806" height="532" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f06-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f06.jpg" width="794" height="532" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f07-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f07.jpg" width="796" height="528" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f08-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f08.jpg" width="596" height="540" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f09-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f09.jpg" width="598" height="540" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f10-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f10.jpg" width="594" height="540" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f11-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f11.jpg" width="594" height="664" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f12-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f12.jpg" width="596" height="664" alt="" decoding="async"></div>
+    <div class="ff"><img class="ff-fill" src="film/f13-bg.jpg" alt="" decoding="async"><img class="ff-img" src="film/f13.jpg" width="598" height="664" alt="" decoding="async"></div>
   </div>
   <canvas class="film-canvas" id="filmCanvas"></canvas>
   <div class="film-grain" id="filmGrain"></div>
@@ -445,7 +440,6 @@ main .btn, main .tab { text-shadow: none; }
       <div class="film-title" id="filmTitle">
         <span class="eyebrow">Torra Lenta apresenta</span>
         <h2>Do grão à xícara</h2>
-        <span class="film-hint"><i></i>Role para assistir</span>
       </div>
       <div class="film-end" id="filmEnd">
         <p>Café é sempre<br>uma boa ideia</p>
@@ -777,7 +771,7 @@ main .btn, main .tab { text-shadow: none; }
 })();
 </script>
 <script>
-/* ---------- Filme: as imagens de referência viram um comercial, conduzido pela rolagem ---------- */
+/* ---------- Filme: as imagens de referência viram um comercial que toca sozinho ---------- */
 (function () {
   var section = document.getElementById("filme");
   var stage = document.getElementById("filmFrames");
@@ -790,7 +784,7 @@ main .btn, main .tab { text-shadow: none; }
   function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function lerp(a, b, k) { return a + (b - a) * k; }
   function seg(p, a, b) { return clamp((p - a) / (b - a)); }
-  function smooth(k) { return k * k * (3 - 2 * k); }
+  function ease(k) { return .5 - .5 * Math.cos(PI * k); }
   function hash(n) { var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
 
   var STEPS = [
@@ -798,26 +792,26 @@ main .btn, main .tab { text-shadow: none; }
     "O café cai na xícara", "Grão a grão, ele se acumula", "Pronto para a água",
     "A água quente encontra o pó", "Nasce a crema", "O aroma toma conta", "Bons momentos começam aqui"
   ];
-  // Cada quadro: passo da legenda, peso no tempo, grupo de câmera (A ou B) ou enquadramento próprio.
+  // Cada quadro: passo da legenda, duração em segundos, grupo de câmera (A, B ou C) ou enquadramento próprio.
   // "a": alinhamento ao quadro de referência do grupo, medido por correlação de imagem
   //      [largura relativa, deslocamento x, deslocamento y], em larguras da referência.
   // "cam": grupo -> [altura da borda da xícara na tela, zoom]; próprio -> [zoom inicial, zoom final].
   // "pow": fio de pó [x0, y0, x1, y1, largura, densidade]; "pour": fio de líquido [x0, y0, x1, y1, largura];
   // "steam": vapor [x, y, abertura, intensidade]. Coordenadas em fração do próprio quadro.
   var FR = [
-    { n: 1, step: 0, wt: 1.3, g: "A", a: [1, 0, 0], cam: [.52, 1] },
-    { n: 2, step: 1, wt: 1.1, g: "A", a: [1.1442, -.04, -.1925], cam: [.64, 1.02] },
-    { n: 3, step: 2, wt: 1, g: "A", a: [1.0673, -.06, -.0725], cam: [.62, 1.04], pow: [.482, .2, .488, .84, .05, .7] },
-    { n: 4, step: 3, wt: .9, g: "A", a: [.96, .0175, -.005], cam: [.58, 1.06], pow: [.52, 0, .45, .87, .08, 1] },
-    { n: 5, step: 3, wt: .9, g: "A", a: [.9113, .0275, .03], cam: [.58, 1.08], pow: [.505, 0, .49, .8, .09, 1] },
-    { n: 6, step: 4, wt: 1, g: "A", a: [.9277, .0375, .0075], cam: [.58, 1.1], pow: [.525, .26, .52, .6, .02, .25] },
-    { n: 7, step: 5, wt: 1.1, g: "A", a: [.96, .0075, .02], cam: [.54, 1.14] },
-    { n: 8, step: 6, wt: 1.2, g: "B", a: [1, 0, 0], cam: [.45, 1], pour: [.547, 0, .449, .625, .022], steam: [.45, .5, .4, .25] },
-    { n: 9, step: 7, wt: 1, g: "B", a: [.9632, .0225, .0325], cam: [.47, 1.07], steam: [.49, .52, .45, .35] },
-    { n: 10, step: 7, wt: 1, focus: [.05, .05, .9, .85], cam: [1, 1.1], pour: [.58, 0, .46, .62, .06] },
-    { n: 11, step: 8, wt: 1, g: "C", a: [1, 0, 0], cam: [.56, 1], steam: [.42, .42, .45, .8] },
-    { n: 12, step: 8, wt: 1.1, g: "C", a: [1.1713, -.1128, -.0941], cam: [.56, 1.1], steam: [.5, .46, .32, .9] },
-    { n: 13, step: 9, wt: 1.4, focus: [0, .15, 1, .8], cam: [1.04, 1.2], steam: [.45, .55, .5, .8] }
+    { n: 1, step: 0, d: 2.8, g: "A", a: [1, 0, 0], cam: [.52, 1] },
+    { n: 2, step: 1, d: 2.2, g: "A", a: [1.1442, -.04, -.1925], cam: [.64, 1.02] },
+    { n: 3, step: 2, d: 2, g: "A", a: [1.0673, -.06, -.0725], cam: [.62, 1.04], pow: [.482, .2, .488, .84, .05, .7] },
+    { n: 4, step: 3, d: 1.8, g: "A", a: [.96, .0175, -.005], cam: [.58, 1.06], pow: [.52, 0, .45, .87, .08, 1] },
+    { n: 5, step: 3, d: 1.8, g: "A", a: [.9113, .0275, .03], cam: [.58, 1.08], pow: [.505, 0, .49, .8, .09, 1] },
+    { n: 6, step: 4, d: 2, g: "A", a: [.9277, .0375, .0075], cam: [.58, 1.1], pow: [.525, .26, .52, .6, .02, .25] },
+    { n: 7, step: 5, d: 2.2, g: "A", a: [.96, .0075, .02], cam: [.54, 1.14] },
+    { n: 8, step: 6, d: 2.4, g: "B", a: [1, 0, 0], cam: [.45, 1], pour: [.547, 0, .449, .625, .022], steam: [.45, .5, .4, .25] },
+    { n: 9, step: 7, d: 2.2, g: "B", a: [.9632, .0225, .0325], cam: [.47, 1.07], steam: [.49, .52, .45, .35] },
+    { n: 10, step: 7, d: 2.2, focus: [.05, .05, .9, .85], cam: [1, 1.1], pour: [.58, 0, .46, .62, .06] },
+    { n: 11, step: 8, d: 2.2, g: "C", a: [1, 0, 0], cam: [.56, 1], steam: [.42, .42, .45, .8] },
+    { n: 12, step: 8, d: 2.4, g: "C", a: [1.1713, -.1128, -.0941], cam: [.56, 1.1], steam: [.5, .46, .32, .9] },
+    { n: 13, step: 9, d: 4.2, focus: [0, .15, 1, .8], cam: [1.02, 1.22], steam: [.45, .55, .5, .8] }
   ];
   // Referência de cada grupo: centro da borda da xícara e largura da xícara (fração do quadro).
   var GROUP = {
@@ -826,14 +820,19 @@ main .btn, main .tab { text-shadow: none; }
     C: { ref: 10, anchor: [.474, .468], cupw: .653 }
   };
 
-  // Tempo de cada quadro na rolagem e janelas de fusão
+  // Linha do tempo (fração do filme) e fusões: longas dentro da mesma câmera, mais curtas entre tomadas
+  var D = 0;
   (function () {
-    var tot = 0, i, acc = 0;
-    for (i = 0; i < FR.length; i++) tot += FR[i].wt;
-    for (i = 0; i < FR.length; i++) { FR[i].a0 = acc / tot; acc += FR[i].wt; FR[i].a1 = acc / tot; }
+    var acc = 0, i;
+    for (i = 0; i < FR.length; i++) D += FR[i].d;
+    for (i = 0; i < FR.length; i++) { FR[i].a0 = acc / D; acc += FR[i].d; FR[i].a1 = acc / D; }
     for (i = 0; i < FR.length; i++) {
-      FR[i].c = i === 0 ? 0 : i === FR.length - 1 ? 1 : (FR[i].a0 + FR[i].a1) / 2;
-      if (i < FR.length - 1) FR[i].hw = .3 * Math.min(FR[i].a1 - FR[i].a0, FR[i + 1].a1 - FR[i + 1].a0);
+      FR[i].c = i === 0 ? 0 : (FR[i].a0 + FR[i].a1) / 2;
+      if (i < FR.length - 1) {
+        var same = FR[i].g && FR[i].g === FR[i + 1].g, match = FR[i].g === "A" && FR[i + 1].g === "B";
+        FR[i].hw = (same ? .48 : match ? .45 : .34) * Math.min(FR[i].a1 - FR[i].a0, FR[i + 1].a1 - FR[i + 1].a0);
+      }
+      if (i > 0) FR[i].prevHw = FR[i - 1].hw;
     }
   })();
 
@@ -844,41 +843,59 @@ main .btn, main .tab { text-shadow: none; }
     f.op = -1; f.tf = "";
   });
 
-  var W = 0, H = 0, dpr = 1, portrait = false;
+  /* ---------- Câmera: curva contínua (sem paradas entre quadros) ---------- */
+  function withTangents(keys) {
+    var n = keys.length;
+    keys.forEach(function (k, i) {
+      if (k.m) return;
+      var a = keys[Math.max(0, i - 1)], b = keys[Math.min(n - 1, i + 1)];
+      k.m = k.v.map(function (v, j) { return b.t === a.t ? 0 : (b.v[j] - a.v[j]) / (b.t - a.t); });
+    });
+    return keys;
+  }
+  function curve(keys, p) {
+    var n = keys.length, i;
+    if (p <= keys[0].t) return keys[0].v.map(function (v, j) { return v + keys[0].m[j] * (p - keys[0].t); });
+    if (p >= keys[n - 1].t) return keys[n - 1].v.map(function (v, j) { return v + keys[n - 1].m[j] * (p - keys[n - 1].t); });
+    for (i = 0; i < n - 1; i++) if (p <= keys[i + 1].t) break;
+    var a = keys[i], b = keys[i + 1], h = b.t - a.t, s = (p - a.t) / h, s2 = s * s, s3 = s2 * s;
+    var h00 = 2 * s3 - 3 * s2 + 1, h10 = s3 - 2 * s2 + s, h01 = -2 * s3 + 3 * s2, h11 = s3 - s2;
+    return a.v.map(function (v, j) { return h00 * v + h10 * h * a.m[j] + h01 * b.v[j] + h11 * h * b.m[j]; });
+  }
+  function keysOf(g) {
+    return withTangents(FR.filter(function (f) { return f.g === g; }).map(function (f) { return { t: f.c, v: f.cam.slice() }; }));
+  }
+  var KA = keysOf("A"), KC = keysOf("C"), KB = null, T_AB = FR[6].a1 + FR[6].hw;
+
+  var W = 0, H = 0, dpr = 1, portrait = false, rAB = 1;
+  function cupTarget(g) {
+    if (g === "A") return portrait ? W * .6 : Math.min(W * .4, H * .62);
+    return portrait ? W * .72 : Math.min(W * .42, H * .75);
+  }
+  // Corte casado: durante a fusão da cena A para a B, a câmera B copia a A (mesma xícara, mesmo lugar)
+  // e depois segue suave até o próprio enquadramento.
+  function matchA(p) { var v = curve(KA, p); return [v[0], v[1] * rAB]; }
+  function buildKB() {
+    var e = .002, v = matchA(T_AB), v1 = matchA(T_AB + e), v0 = matchA(T_AB - e);
+    KB = withTangents([
+      { t: T_AB, v: v, m: [(v1[0] - v0[0]) / (2 * e), (v1[1] - v0[1]) / (2 * e)] },
+      { t: FR[8].c, v: FR[8].cam.slice() }
+    ]);
+  }
+  function groupCam(g, p) {
+    if (g === "A") return curve(KA, p);
+    if (g === "B") return p < T_AB ? matchA(p) : curve(KB, p);
+    return curve(KC, p);
+  }
   function layout() {
     var r = canvas.getBoundingClientRect();
     if (!r.width || !r.height) return false;
     W = r.width; H = r.height; portrait = W / H < 1;
     dpr = Math.min(window.devicePixelRatio || 1, W < 700 ? 1.75 : 2);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    rAB = cupTarget("A") / cupTarget("B");
+    buildKB();
     return true;
-  }
-
-  // Largura da xícara na tela, por grupo de câmera
-  function cupTarget(g) {
-    if (g === "A") return portrait ? W * .6 : Math.min(W * .4, H * .62);
-    return portrait ? W * .72 : Math.min(W * .42, H * .75);
-  }
-  // Câmera do grupo: interpola altura e zoom entre os quadros do grupo, pelo centro de cada um.
-  // Corte casado: a primeira posição do grupo B repete a xícara do fim do grupo A (mesmo tamanho e lugar),
-  // para a fusão entre as cenas não mostrar duas xícaras diferentes.
-  function camKey(f) {
-    if (f.n === 8) {
-      var lastA = FR[6].cam;
-      return [lastA[0], lastA[1] * cupTarget("A") / cupTarget("B")];
-    }
-    return f.cam;
-  }
-  function groupCam(g, p) {
-    var list = FR.filter(function (f) { return f.g === g; });
-    if (p <= list[0].c) return camKey(list[0]);
-    for (var i = 1; i < list.length; i++) {
-      if (p <= list[i].c) {
-        var k = smooth(seg(p, list[i - 1].c, list[i].c)), a = camKey(list[i - 1]), b = camKey(list[i]);
-        return [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
-      }
-    }
-    return camKey(list[list.length - 1]);
   }
   // Posição do quadro na tela: x, y do canto e largura exibida
   function place(f, p) {
@@ -896,22 +913,21 @@ main .btn, main .tab { text-shadow: none; }
       var cover = Math.max(W / f.w, H / f.h), contain = Math.min(W / f.w, H / f.h);
       var s = Math.min(cover, Math.max(contain, Math.min(W / fw, H / fh))) * z;
       dw = f.w * s;
-      x = W / 2 - (f.focus[0] + f.focus[2] / 2) * dw;
-      y = H / 2 - (f.focus[1] + f.focus[3] / 2) * f.h * s;
       var dh = f.h * s;
+      x = W / 2 - (f.focus[0] + f.focus[2] / 2) * dw;
+      y = H / 2 - (f.focus[1] + f.focus[3] / 2) * dh;
       if (dw > W) x = Math.min(0, Math.max(W - dw, x)); else x = (W - dw) / 2;
       if (dh > H) y = Math.min(0, Math.max(H - dh, y)); else y = (H - dh) / 2;
     }
     return { x: x, y: y, w: dw, h: dw * f.h / f.w };
   }
-  FR.forEach(function (f, i) { if (i > 0) f.prevHw = FR[i - 1].hw; });
 
   // Quais quadros aparecem e com que opacidade (o de cima funde por cima do de baixo)
   function visibleAt(p) {
     for (var i = 0; i < FR.length; i++) {
       var f = FR[i];
       if (i < FR.length - 1 && p >= f.a1 - f.hw && p <= f.a1 + f.hw) {
-        return [[i, 1], [i + 1, smooth(seg(p, f.a1 - f.hw, f.a1 + f.hw))]];
+        return [[i, 1], [i + 1, ease(seg(p, f.a1 - f.hw, f.a1 + f.hw))]];
       }
       if (p < f.a1 || i === FR.length - 1) return [[i, 1]];
     }
@@ -1000,15 +1016,15 @@ main .btn, main .tab { text-shadow: none; }
   var text = document.getElementById("filmText"), bar = document.getElementById("filmBar");
   var shown = 0, swapTimer = 0;
   function overlays(p, vis) {
-    var ta = 1 - seg(p, .006, .045);
+    var ta = 1 - seg(p, .05, .085);
     title.style.opacity = String(ta);
     title.style.transform = "translateY(calc(-50% - " + (1 - ta) * 40 + "px))";
     title.style.visibility = ta <= 0 ? "hidden" : "visible";
-    var ea = seg(p, .955, .99);
+    var ea = seg(p, .9, .925) * (1 - seg(p, .975, .995));
     end.style.opacity = String(ea);
     end.style.transform = "translateY(" + (1 - ea) * 16 + "px)";
     end.style.visibility = ea <= 0 ? "hidden" : "visible";
-    cap.style.opacity = String(seg(p, .03, .06));
+    cap.style.opacity = String(seg(p, .07, .1) * (1 - seg(p, .975, .995)));
     bar.style.transform = "scaleX(" + p + ")";
     var top = vis.length > 1 && vis[1][1] > .5 ? vis[1][0] : vis[0][0];
     var idx = FR[top].step;
@@ -1024,7 +1040,7 @@ main .btn, main .tab { text-shadow: none; }
     }
   }
 
-  /* ---------- Desenho de um quadro do filme ---------- */
+  /* ---------- Desenho de um momento do filme ---------- */
   function render(p, t, ambient) {
     var vis = visibleAt(p), on = {}, i;
     for (i = 0; i < vis.length; i++) on[vis[i][0]] = vis[i][1];
@@ -1046,12 +1062,15 @@ main .btn, main .tab { text-shadow: none; }
       if (f.steam) drawSteam(f.steam, P, op, t);
     }
     drawMotes(t, ambient);
+    // fade do preto no começo e no fim de cada volta
+    var black = Math.max(1 - seg(p, 0, .03), seg(p, .975, 1));
+    if (black > 0) { ctx.globalAlpha = black; ctx.fillStyle = "#0a0604"; ctx.fillRect(0, 0, W, H); }
     ctx.globalAlpha = 1;
     overlays(p, vis);
   }
 
-  /* ---------- Laço: rolagem conduz o filme; vapor e partículas seguem vivos ---------- */
-  var target = 0, cur = 0, last = 0, amb = 0, paused = false, lastDraw = 0, inSection = true, dirty = true;
+  /* ---------- Laço: o filme toca sozinho e recomeça ---------- */
+  var clock = 0, last = 0, amb = 0, paused = false, ready = false, lastDraw = 0, inSection = true, dirty = true;
   var pauseBtns = document.querySelectorAll("[data-film-pause]");
   function setPaused(v) {
     paused = v;
@@ -1061,22 +1080,21 @@ main .btn, main .tab { text-shadow: none; }
     });
   }
   pauseBtns.forEach(function (b) { b.addEventListener("click", function () { setPaused(!paused); }); });
-  function progress() {
-    var r = section.getBoundingClientRect(), span = r.height - window.innerHeight;
-    return span > 0 ? clamp(-r.top / span) : 0;
-  }
+  // Só começa quando todas as fotos estiverem prontas na memória (sem engasgos na primeira volta)
+  Promise.all(FR.map(function (f) {
+    return f.img.decode ? f.img.decode().catch(function () {}) : Promise.resolve();
+  })).then(function () { ready = true; });
+  setTimeout(function () { ready = true; }, 6000);
+
   function frame(now) {
-    var t = now / 1000, dt = Math.min(.1, last ? t - last : .016);
+    var t = now / 1000, dt = Math.min(.05, last ? t - last : .016);
     last = t;
-    if (!paused) amb += dt;
-    target = progress();
-    cur += (target - cur) * (1 - Math.exp(-dt * 6));
-    if (Math.abs(target - cur) < .0002) cur = target;
+    if (ready && !paused) { clock = (clock + dt) % D; amb += dt; }
     if (dirty) { dirty = !layout(); }
-    // Na seção do filme, todo quadro; atrás do conteúdo, ~30 por segundo para poupar bateria
-    if (inSection || now - lastDraw > 32) {
+    // Na abertura, todo quadro; atrás do conteúdo, ~30 por segundo para poupar bateria
+    if (!dirty && (inSection || now - lastDraw > 32)) {
       lastDraw = now;
-      render(cur, amb, inSection ? 1 : .6);
+      render(clock / D, amb, inSection ? 1 : .6);
     }
     requestAnimationFrame(frame);
   }
@@ -1088,7 +1106,7 @@ main .btn, main .tab { text-shadow: none; }
     var r = canvas.getBoundingClientRect();
     if (Math.abs(r.width - lastW) > 1 || Math.abs(r.height - lastH) > 60) { lastW = r.width; lastH = r.height; dirty = true; }
   }, { passive: true });
-  if (layout()) { var r0 = canvas.getBoundingClientRect(); lastW = r0.width; lastH = r0.height; dirty = false; cur = target = progress(); render(cur, 0, 1); }
+  if (layout()) { var r0 = canvas.getBoundingClientRect(); lastW = r0.width; lastH = r0.height; dirty = false; render(0, 0, 1); }
   requestAnimationFrame(frame);
 })();
 </script>

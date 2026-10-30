@@ -247,6 +247,93 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 .footer { padding-block: 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
 .footer .wrap { display: grid; gap: 6px; }
 
+/* ---------- Filme: do grão à xícara (sempre escuro, como uma sala de cinema) ---------- */
+.film {
+  --film-bg: #0a0604;
+  --film-ink: #f4e7d6;
+  --film-muted: rgba(244, 231, 214, .62);
+  --film-gold: #dba660;
+  position: relative; background: var(--film-bg); color: var(--film-ink);
+}
+.film-sticky {
+  position: relative; min-height: 70vh; display: grid; place-items: center; overflow: hidden;
+  isolation: isolate;
+}
+.film-on .film-sticky {
+  height: calc(100vh - var(--header-h));
+  height: calc(100svh - var(--header-h) - env(safe-area-inset-top, 0px));
+  min-height: 480px;
+}
+.film-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.film-sticky::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 40%, rgba(0, 0, 0, .6) 100%);
+}
+.film-grain {
+  position: absolute; inset: -50%; z-index: 1; pointer-events: none;
+  opacity: .07; mix-blend-mode: overlay; background-size: 180px 180px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .film-grain { animation: grain .7s steps(4) infinite; }
+  .film-hint i { animation: hint 1.8s var(--ease-in-out) infinite; }
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); } 75% { transform: translate(-1%, -2%); }
+}
+@keyframes hint { 0%, 100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(6px); opacity: 1; } }
+
+.film-title {
+  position: relative; z-index: 2; display: grid; justify-items: center; gap: 14px; text-align: center;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+}
+.film-on .film-title { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); }
+.film-title .eyebrow { color: var(--film-gold); }
+.film-title h2 { font-size: clamp(2.6rem, 11vw, 5.6rem); font-weight: 800; letter-spacing: -.03em; color: var(--film-ink); }
+.film-hint { display: grid; justify-items: center; gap: 8px; font: 500 .75rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--film-muted); }
+.film-hint i { width: 1px; height: 28px; background: linear-gradient(var(--film-gold), transparent); }
+
+.film-caption, .film-bar, .film-controls, .film-end { display: none; }
+.film-on .film-caption, .film-on .film-bar { display: block; }
+.film-on .film-controls { display: flex; }
+.film-on .film-end { display: grid; }
+
+.film-caption {
+  position: absolute; z-index: 2; left: var(--gutter-l); right: var(--gutter-r);
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 32px);
+  max-width: 28ch;
+  transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+}
+.film-caption.is-swapping { opacity: 0; transform: translateY(10px); }
+.film-num { display: block; margin-bottom: 8px; font: 500 .8rem/1 var(--font-mono); letter-spacing: .14em; color: var(--film-gold); font-variant-numeric: tabular-nums; }
+.film-caption p { font: 700 clamp(1.4rem, 5.6vw, 2.3rem)/1.12 var(--font-display); letter-spacing: -.01em; color: var(--film-ink); text-wrap: balance; text-shadow: 0 2px 18px rgba(0, 0, 0, .6); }
+.film-bar {
+  position: absolute; z-index: 2; left: var(--gutter-l); right: var(--gutter-r);
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 16px);
+  height: 2px; border-radius: 2px; background: rgba(244, 231, 214, .14); overflow: hidden;
+}
+.film-bar i { display: block; height: 100%; background: var(--film-gold); transform-origin: 0 50%; transform: scaleX(0); }
+.film-controls { position: absolute; z-index: 3; top: 14px; right: var(--gutter-r); gap: 8px; }
+.film-skip, .film-pause {
+  min-height: 36px; padding: 10px 14px; cursor: pointer; border-radius: 999px; border: 1px solid rgba(244, 231, 214, .22);
+  background: rgba(10, 6, 4, .45); color: var(--film-muted); text-decoration: none;
+  font: 500 .72rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+}
+.film-end {
+  position: absolute; z-index: 2; left: 0; right: 0; top: 13%; justify-items: center; gap: 18px; text-align: center;
+  padding-left: var(--gutter-l); padding-right: var(--gutter-r);
+  opacity: 0; visibility: hidden;
+}
+.film-end p { font: 600 clamp(1.3rem, 5.4vw, 2.4rem)/1.25 var(--font-display); letter-spacing: .22em; text-transform: uppercase; color: var(--film-gold); }
+@media (min-width: 760px) {
+  .film-caption { bottom: 64px; }
+  .film-bar { bottom: 40px; max-width: 420px; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .film-skip, .film-pause { transition: color 160ms ease, border-color 160ms ease; }
+  .film-skip:hover, .film-pause:hover { color: var(--film-ink); border-color: rgba(244, 231, 214, .5); }
+}
+
 /* ---------- Navegação inferior (celular) ---------- */
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
@@ -307,6 +394,30 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 </header>
 
 <main>
+  <section class="film" id="filme" aria-label="Filme: do grão à xícara">
+    <div class="film-sticky">
+      <canvas class="film-canvas" id="filmCanvas" aria-hidden="true"></canvas>
+      <div class="film-grain" id="filmGrain" aria-hidden="true"></div>
+      <div class="film-title" id="filmTitle">
+        <span class="eyebrow">Torra Lenta apresenta</span>
+        <h2>Do grão à xícara</h2>
+              </div>
+      <div class="film-end" id="filmEnd">
+        <p>Café é sempre<br>uma boa ideia</p>
+        <a class="btn" href="#cardapio">Ver cardápio</a>
+      </div>
+      <div class="film-caption" id="filmCaption" aria-live="polite">
+        <span class="film-num" id="filmNum">01 / 12</span>
+        <p id="filmText">Grãos de café selecionados</p>
+      </div>
+      <div class="film-bar" aria-hidden="true"><i id="filmBar"></i></div>
+      <div class="film-controls">
+        <button class="film-pause" id="filmPause" type="button" aria-pressed="false">Pausar</button>
+        <a class="film-skip" href="#inicio">Pular</a>
+      </div>
+    </div>
+  </section>
+
   <section class="hero" id="inicio">
     <div class="wrap">
       <div class="hero-copy" id="heroCopy">
@@ -538,9 +649,11 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
     stepsFill.style.transform = "scaleY(" + p + ")";
 
     if (!reduce) {
-      var h = hero.offsetHeight;
-      if (y < h) {
-        var t = y / h;
+      var h = hero.offsetHeight, rel = y - hero.offsetTop;
+      if (rel < 0) {
+        heroCopy.style.transform = ""; heroCopy.style.opacity = ""; cup.style.transform = "";
+      } else if (rel < h) {
+        var t = rel / h;
         heroCopy.style.transform = "translateY(" + (-t * 48) + "px)";
         heroCopy.style.opacity = String(1 - t * 0.9);
         cup.style.transform = "translateY(" + (t * 40) + "px) rotate(" + (-t * 6) + "deg)";
@@ -559,7 +672,7 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
     var spy = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (!e.isIntersecting) return;
-        var id = e.target.id === "espaco" ? "processo" : e.target.id === "grao" ? "inicio" : e.target.id;
+        var id = e.target.id === "espaco" ? "processo" : (e.target.id === "grao" || e.target.id === "filme") ? "inicio" : e.target.id;
         navLinks.forEach(function (a) { a.setAttribute("aria-current", a.getAttribute("data-nav") === id ? "true" : "false"); });
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
@@ -616,5 +729,649 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   });
 })();
 </script>
+<script>
+/* ---------- Filme: do grão à xícara, desenhado em canvas e conduzido pela rolagem ---------- */
+(function () {
+  var section = document.getElementById("filme");
+  var canvas = document.getElementById("filmCanvas");
+  var ctx = canvas && canvas.getContext ? canvas.getContext("2d") : null;
+  if (!section || !ctx) return;
+  document.documentElement.classList.add("film-on");
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var PI = Math.PI, PI2 = PI * 2;
+  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function lerp(a, b, k) { return a + (b - a) * k; }
+  function seg(p, a, b) { return clamp((p - a) / (b - a)); }
+  function smooth(k) { return k * k * (3 - 2 * k); }
+  function rand(seed) {
+    var s = seed;
+    return function () { s = s * 16807 % 2147483647; return (s - 1) / 2147483646; };
+  }
+
+  // Início de cada cena, em fração da rolagem da seção (12 cenas, como no roteiro)
+  var B = [0, .08, .16, .24, .34, .42, .52, .61, .69, .77, .85, .92, 1];
+  var CAPTIONS = [
+    "Grãos de café selecionados", "O café é moído na hora", "O pó de café é preparado",
+    "A xícara ganha forma", "O pó é colocado na xícara", "A água quente é adicionada",
+    "O sabor começa a se revelar", "O café se completa", "O aroma toma conta",
+    "Pronto para ser apreciado", "Mais que café, é um momento", "Bons momentos começam aqui"
+  ];
+  function beat(p, i) { return seg(p, B[i], B[i + 1]); }
+
+  /* ---------- Sprites desenhados uma vez ---------- */
+  function sprite(w, h, draw) {
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    draw(c.getContext("2d"), w, h); return c;
+  }
+  // Desfoque barato: reduz e amplia (funciona em todos os navegadores)
+  function soften(src, f) {
+    var sw = Math.max(4, Math.round(src.width / f)), sh = Math.max(4, Math.round(src.height / f));
+    var tiny = sprite(sw, sh, function (g) { g.drawImage(src, 0, 0, sw, sh); });
+    return sprite(src.width, src.height, function (g) { g.drawImage(tiny, 0, 0, src.width, src.height); });
+  }
+  var BEAN = sprite(128, 128, function (g) {
+    g.translate(64, 64);
+    var body = g.createRadialGradient(-15, -17, 3, 0, 0, 52);
+    body.addColorStop(0, "#b8784a"); body.addColorStop(.42, "#6b3a1c"); body.addColorStop(1, "#170904");
+    g.fillStyle = body;
+    g.beginPath(); g.ellipse(0, 0, 50, 35, 0, 0, PI2); g.fill();
+    g.lineCap = "round";
+    g.strokeStyle = "rgba(12,4,1,.92)"; g.lineWidth = 6.5;
+    g.beginPath(); g.moveTo(-42, 5); g.bezierCurveTo(-15, -17, 13, 21, 42, -5); g.stroke();
+    g.strokeStyle = "rgba(240,176,112,.38)"; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(-40, -1); g.bezierCurveTo(-15, -23, 13, 15, 40, -11); g.stroke();
+    g.strokeStyle = "rgba(255,198,130,.62)"; g.lineWidth = 2.6;
+    g.beginPath(); g.ellipse(0, 0, 48.5, 33.5, 0, PI * 1.02, PI * 1.72); g.stroke();
+    var spec = g.createRadialGradient(-19, -19, 0, -19, -19, 17);
+    spec.addColorStop(0, "rgba(255,228,186,.5)"); spec.addColorStop(1, "rgba(255,228,186,0)");
+    g.fillStyle = spec; g.beginPath(); g.ellipse(-19, -19, 17, 10, -.5, 0, PI2); g.fill();
+  });
+  var BEAN_SOFT = soften(soften(BEAN, 5), 2);
+  function glowSprite(rgb, a) {
+    return sprite(128, 128, function (g) {
+      var r = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+      r.addColorStop(0, "rgba(" + rgb + "," + a + ")");
+      r.addColorStop(.35, "rgba(" + rgb + "," + (a * .38) + ")");
+      r.addColorStop(1, "rgba(" + rgb + ",0)");
+      g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+    });
+  }
+  var PUFF = glowSprite("255,244,232", .9);
+  var BOKEH = glowSprite("255,184,104", .9);
+  var CREMA = sprite(512, 512, function (g) {
+    var R = rand(7), i, a, d, r, x, y;
+    g.translate(256, 256);
+    for (i = 0; i < 30; i++) {
+      g.strokeStyle = "rgba(236,178,108," + (.05 + R() * .09) + ")";
+      g.lineWidth = 2 + R() * 7;
+      a = R() * PI2; r = 30 + R() * 200;
+      g.beginPath(); g.arc(0, 0, r, a, a + .5 + R() * 1.5); g.stroke();
+    }
+    for (i = 0; i < 1500; i++) {
+      a = R() * PI2; d = Math.sqrt(R()) * 252;
+      r = (.6 + R() * 2.3) * (d > 200 ? 1.8 : 1);
+      x = Math.cos(a) * d; y = Math.sin(a) * d;
+      g.fillStyle = "rgba(58,26,9," + (.22 + R() * .3) + ")";
+      g.beginPath(); g.arc(x, y, r, 0, PI2); g.fill();
+      g.strokeStyle = "rgba(255,224,176," + (.12 + R() * .26) + ")"; g.lineWidth = .8;
+      g.beginPath(); g.arc(x - r * .2, y - r * .2, r * .8, PI * 1.1, PI * 1.75); g.stroke();
+    }
+  });
+  // Granulação de filme
+  (function () {
+    var grain = document.getElementById("filmGrain");
+    if (!grain) return;
+    var n = sprite(180, 180, function (g) {
+      var img = g.createImageData(180, 180), R = rand(99);
+      for (var i = 0; i < img.data.length; i += 4) {
+        var v = R() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+      }
+      g.putImageData(img, 0, 0);
+    });
+    try { grain.style.backgroundImage = "url(" + n.toDataURL() + ")"; } catch (e) {}
+  })();
+
+  /* ---------- Geometria do copo e partículas ---------- */
+  var W = 0, H = 0, dpr = 1, G = null;
+  var beans = [], dust = [], puffs = [], lights = [];
+
+  function bowl(cx, T, tw, bw, h) {
+    var l = cx - tw / 2;
+    return {
+      cx: cx, T: T, B: T + h, tw: tw, bw: bw, h: h,
+      p: [l, T, l + tw * .012, T + h * .78, cx - bw * .62, T + h, cx, T + h]
+    };
+  }
+  function bez(a, b, c, d, t) { var u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; }
+  function sample(b) {
+    var pts = [], p = b.p;
+    for (var i = 0; i <= 48; i++) {
+      var t = i / 48;
+      pts.push([bez(p[0], p[2], p[4], p[6], t), bez(p[1], p[3], p[5], p[7], t)]);
+    }
+    b.pts = pts;
+    var len = 0;
+    for (i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    b.len = len * 2;
+    return b;
+  }
+  // Meia largura do copo na altura y
+  function halfAt(b, y) {
+    var pts = b.pts;
+    if (y <= pts[0][1]) return b.cx - pts[0][0];
+    for (var i = 1; i < pts.length; i++) {
+      if (pts[i][1] >= y) {
+        var k = (y - pts[i - 1][1]) / ((pts[i][1] - pts[i - 1][1]) || 1);
+        return b.cx - lerp(pts[i - 1][0], pts[i][0], k);
+      }
+    }
+    return 0;
+  }
+  function bowlPath(g, b, close) {
+    var p = b.p, cx = b.cx;
+    g.moveTo(p[0], p[1]);
+    g.bezierCurveTo(p[2], p[3], p[4], p[5], p[6], p[7]);
+    g.bezierCurveTo(2 * cx - p[4], p[5], 2 * cx - p[2], p[3], 2 * cx - p[0], p[1]);
+    if (close) g.closePath();
+  }
+
+  function layout() {
+    var r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    W = r.width; H = r.height;
+    dpr = Math.min(window.devicePixelRatio || 1, W < 700 ? 1.75 : 2);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+
+    var tw = Math.min(W * .6, H * .36, 380);
+    var h = tw * .82, cx = W / 2, cy = H * .56, T = cy - h / 2, gl = tw * .04;
+    var outer = sample(bowl(cx, T, tw, tw * .7, h));
+    var inner = sample(bowl(cx, T + gl * .3, tw - gl * 2, tw * .7 - gl * 2, h - gl * 2.7));
+    G = {
+      cx: cx, cy: cy, tw: tw, h: h, T: T, B: T + h, rx: tw / 2, ry: tw * .09,
+      outer: outer, inner: inner, cloudY: T - h * .62,
+      handle: [cx + tw / 2 - tw * .015, T + h * .14]
+    };
+    G.handle.push(halfAt(outer, T + h * .62) + cx - tw * .02, T + h * .62);
+    G.outLen = outer.len + PI * (G.rx + G.ry) * 1.1;
+    build();
+    return true;
+  }
+
+  function build() {
+    var R = rand(42), i;
+    var low = (navigator.hardwareConcurrency || 4) <= 4;
+    var k = Math.min(1, (W * H) / (1280 * 800)) * (low ? .7 : 1);
+    var nb = Math.round(28 + 34 * k), nd = Math.round(300 + 460 * k), np = Math.round(40 + 44 * k);
+    beans = []; dust = []; puffs = []; lights = [];
+    for (i = 0; i < nb; i++) beans.push({
+      th: R() * PI2, rr: .95 + R() * 1.7, yo: (R() - .5) * 2.3, sp: .5 + R(), rot: R() * PI2,
+      rs: (R() - .5) * 1.4, tb: R() * PI2, ts: .4 + R() * 1.1, sz: .7 + R() * .65,
+      stream: i % 3 === 0, d: R(), jx: R() - .5
+    });
+    for (i = 0; i < nd; i++) dust.push({ a: R() * PI2, r1: R(), r2: R(), r3: R(), c: Math.floor(R() * 4) });
+    for (i = 0; i < np; i++) puffs.push({ ph: R(), u: R() * 2 - 1, sz: .7 + R() * .6, w: R() });
+    for (i = 0; i < 9; i++) lights.push({ x: R(), y: R() * .8, s: .08 + R() * .16, ph: R() * PI2, dp: .3 + R() });
+  }
+
+  /* ---------- Câmera: zoom e foco de cada cena ---------- */
+  function camera(p) {
+    var surf = G.T + G.h * .22;
+    var K = [
+      [0, 1.24, H / 2], [B[1], 1.16, H / 2], [B[2], 1, (G.cloudY + G.cy) / 2], [B[3], 1, (G.cloudY + G.cy) / 2],
+      [B[4], 1, G.cy - G.h * .2], [B[6], 1.02, G.cy], [B[7] + .02, 1.3, surf], [B[8], 1.16, surf],
+      [B[9], 1, G.cy - G.h * .3], [B[10], .86, G.cy], [B[11], .93, G.cy], [1, .86, G.cy - G.h * .1]
+    ];
+    for (var i = 1; i < K.length; i++) {
+      if (p <= K[i][0]) {
+        var k = smooth(seg(p, K[i - 1][0], K[i][0]));
+        return [lerp(K[i - 1][1], K[i][1], k), lerp(K[i - 1][2], K[i][2], k)];
+      }
+    }
+    return [K[K.length - 1][1], K[K.length - 1][2]];
+  }
+
+  /* ---------- Estado da cena em função da rolagem ---------- */
+  function liquid(p) {
+    var k6 = beat(p, 5), k7 = beat(p, 6), k8 = beat(p, 7);
+    var level = .55 * smooth(k6) + .2 * k7 + .11 * k8;
+    var start = clamp(k6 * 5), stop = smooth(seg(k8, .5, 1));
+    var on = k6 > 0 && stop < 1;
+    return {
+      level: level, start: start, stop: stop, on: on,
+      dark: smooth(clamp(k6 * 1.1 + k7 * .6)), crema: smooth(k7),
+      flow: on ? Math.min(start * 3, 1) * (1 - stop * .6) : 0
+    };
+  }
+
+  /* ---------- Desenho ---------- */
+  function drawBackground(p, t, cupA) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#0a0604"; ctx.fillRect(0, 0, W, H);
+    var a = .32 + .3 * cupA + .15 * beat(p, 8);
+    var gr = ctx.createRadialGradient(W / 2, H * .5, 0, W / 2, H * .5, Math.max(W, H) * .78);
+    gr.addColorStop(0, "rgba(150,82,34," + a + ")");
+    gr.addColorStop(.45, "rgba(70,36,14," + (a * .45) + ")");
+    gr.addColorStop(1, "rgba(10,6,4,0)");
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = "screen";
+    for (var i = 0; i < lights.length; i++) {
+      var L = lights[i], s = L.s * Math.max(W, H);
+      var x = L.x * W + Math.sin(t * .15 + L.ph) * 18 - p * W * .25 * L.dp;
+      var y = L.y * H + Math.cos(t * .12 + L.ph) * 12;
+      ctx.globalAlpha = (.05 + .07 * L.dp) * (.6 + .4 * cupA);
+      ctx.drawImage(BOKEH, x - s / 2, y - s / 2, s, s);
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  }
+
+  function beanPos(b, p, t) {
+    var th = b.th + t * .09 * b.sp + p * PI * 1.5;
+    var R3 = b.rr * G.rx * 1.45;
+    var X = Math.cos(th) * R3, Z = Math.sin(th) * R3;
+    var Y = b.yo * G.h * .95 + Math.sin(t * .6 * b.sp + b.th) * G.h * .05;
+    var f = G.tw * 4, s = f / (f - Z);
+    return { x: G.cx + X * s, y: G.cy + Y * s + Z * .14, s: s, z: Z };
+  }
+  function drawBean(x, y, size, rot, squash, alpha, soft) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y); ctx.rotate(rot); ctx.scale(1, squash);
+    ctx.drawImage(soft ? BEAN_SOFT : BEAN, -size / 2, -size / 2, size, size);
+    ctx.restore();
+  }
+  function drawBeans(p, t, front) {
+    var k2 = beat(p, 1);
+    var dim = 1 - .45 * (seg(p, B[2], B[3]) - seg(p, B[5], B[6]));
+    for (var i = 0; i < beans.length; i++) {
+      var b = beans[i], q = beanPos(b, p, t);
+      var x = q.x, y = q.y, a = dim, size = G.tw * .17 * b.sz * q.s;
+      if (b.stream) {
+        var local = clamp(k2 * 1.3 - b.d * .45);
+        if (local >= 1) continue;
+        var m = smooth(clamp(local * 3));
+        x = lerp(x, G.cx + b.jx * G.tw * .2, m);
+        y = lerp(y, H * 1.25, local * local);
+        a *= 1 - seg(local, .8, 1);
+        if (local > 0) { if (!front) continue; size *= 1 + local * .2; }
+        else if ((q.z > 0) !== front) continue;
+      } else if ((q.z > 0) !== front) continue;
+      var tumble = b.tb + t * b.ts * .7 + p * 5 * b.ts;
+      var depthA = q.s < .82 ? .55 : 1;
+      drawBean(x, y, size, b.rot + t * b.rs * .4 + p * 4 * b.rs, .5 + .5 * Math.abs(Math.cos(tumble)),
+        a * depthA, q.s > 1.28 || q.s < .78);
+    }
+  }
+
+  var DUST_COLORS = ["#4a2510", "#6e3a19", "#9a5a2a", "#e0a35c"];
+  function dustPos(d, p, t) {
+    var k2 = beat(p, 1);
+    // A: pó que sai dos grãos ao serem moídos
+    var x = G.cx + (d.r1 - .5) * G.tw * .32;
+    var y = lerp(H * .08, H * 1.02, d.r2) + k2 * G.h * .3;
+    var a = seg(k2, .3 + d.r3 * .3, .6 + d.r3 * .3), size = 1.1 + d.r1 * 2.6;
+    // B: nuvem em espiral
+    var m3 = smooth(seg(p, B[2] + d.r3 * .03, B[2] + .05 + d.r3 * .03));
+    if (m3 > 0) {
+      var ang = d.a + p * 16 + t * .45;
+      var rad = G.tw * .58 * (.18 + d.r1 * .82) * (1 - .25 * d.r2);
+      var cxp = G.cx + Math.cos(ang) * rad;
+      var cyp = G.cloudY + (d.r2 - .5) * G.h * .55 + Math.sin(ang) * rad * .12;
+      x = lerp(x, cxp, m3); y = lerp(y, cyp, m3);
+      a = Math.max(a, m3) * (.65 + .35 * Math.sin(ang));
+    }
+    // C: cai dentro da xícara e assenta no fundo
+    var m5 = clamp((p - (B[4] + d.r3 * .055)) / .035);
+    if (m5 > 0) {
+      var sx = G.cx + (d.r1 - .5) * G.inner.bw * .95;
+      var sy = G.inner.B - d.r2 * G.h * .07;
+      x = lerp(x, sx, smooth(m5)); y = lerp(y, sy, m5 * m5);
+      a = lerp(a, 1, m5);
+    }
+    a *= 1 - seg(p, B[5] + .02, B[5] + .05);
+    return [x, y, a, size];
+  }
+  function drawDust(p, t) {
+    if (p < B[1] + .02 || p > B[5] + .05) return;
+    for (var c = 0; c < 4; c++) {
+      ctx.fillStyle = DUST_COLORS[c];
+      for (var i = 0; i < dust.length; i++) {
+        var d = dust[i];
+        if (d.c !== c) continue;
+        var q = dustPos(d, p, t);
+        if (q[2] <= .01) continue;
+        ctx.globalAlpha = q[2];
+        ctx.fillRect(q[0], q[1], q[3], q[3]);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawSaucer(p) {
+    var a = smooth(seg(p, B[8] + .03, B[9] + .03));
+    if (a <= 0) return;
+    var y = G.B + G.h * .05, rx = G.tw * (.86 + .1 * a), ry = G.tw * .15;
+    ctx.save();
+    ctx.globalAlpha = a;
+    var floor = ctx.createRadialGradient(G.cx, y, 0, G.cx, y, rx * 1.6);
+    floor.addColorStop(0, "rgba(140,80,34,.32)"); floor.addColorStop(1, "rgba(140,80,34,0)");
+    ctx.fillStyle = floor;
+    ctx.save(); ctx.translate(G.cx, y); ctx.scale(1, .22); ctx.translate(-G.cx, -y);
+    ctx.beginPath(); ctx.arc(G.cx, y, rx * 1.6, 0, PI2); ctx.fill(); ctx.restore();
+    ctx.fillStyle = "rgba(255,232,206,.05)";
+    ctx.beginPath(); ctx.ellipse(G.cx, y, rx, ry, 0, 0, PI2); ctx.fill();
+    ctx.strokeStyle = "rgba(255,228,196,.34)"; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.ellipse(G.cx, y, rx, ry, 0, 0, PI2); ctx.stroke();
+    ctx.strokeStyle = "rgba(255,228,196,.14)";
+    ctx.beginPath(); ctx.ellipse(G.cx, y + ry * .1, rx * .62, ry * .55, 0, 0, PI2); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawLiquid(p, t, L) {
+    var inn = G.inner;
+    var settled = seg(p, B[4] + .02, B[5]);
+    var cover = 1 - seg(p, B[5] + .02, B[5] + .05);
+    ctx.save();
+    ctx.beginPath(); bowlPath(ctx, inn, true); ctx.clip();
+    // camada de pó no fundo
+    if (settled > 0 && cover > 0) {
+      var ph = G.h * .07 * settled;
+      ctx.globalAlpha = cover;
+      var pg = ctx.createLinearGradient(0, inn.B - ph, 0, inn.B);
+      pg.addColorStop(0, "#6b3a1a"); pg.addColorStop(1, "#2b1407");
+      ctx.fillStyle = pg;
+      ctx.beginPath(); ctx.ellipse(G.cx, inn.B - ph * .2, inn.bw * .55, ph, 0, PI, PI2); ctx.lineTo(G.cx + inn.tw, inn.B + 4); ctx.lineTo(G.cx - inn.tw, inn.B + 4); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    if (L.level > 0) {
+      var sY = inn.B - L.level * (inn.B - inn.T);
+      var rx = halfAt(inn, sY), ry = rx * .17;
+      var a = lerp(.55, .97, L.dark);
+      var lg = ctx.createLinearGradient(G.cx - G.rx, 0, G.cx + G.rx, 0);
+      var edge = "rgba(" + Math.round(lerp(176, 120, L.dark)) + "," + Math.round(lerp(92, 58, L.dark)) + ",30," + a + ")";
+      var core = "rgba(" + Math.round(lerp(120, 22, L.dark)) + "," + Math.round(lerp(58, 10, L.dark)) + "," + Math.round(lerp(20, 4, L.dark)) + "," + a + ")";
+      lg.addColorStop(0, edge); lg.addColorStop(.2, core); lg.addColorStop(.8, core); lg.addColorStop(1, edge);
+      ctx.fillStyle = lg;
+      ctx.fillRect(G.cx - G.rx, sY, G.tw, inn.B - sY + 6);
+      // superfície
+      ctx.save();
+      ctx.beginPath(); ctx.ellipse(G.cx, sY, rx, ry, 0, 0, PI2); ctx.clip();
+      ctx.fillStyle = core; ctx.fillRect(G.cx - rx, sY - ry, rx * 2, ry * 2);
+      if (L.crema > 0) {
+        ctx.globalAlpha = L.crema;
+        var cg = ctx.createRadialGradient(G.cx, sY, 0, G.cx, sY, rx);
+        cg.addColorStop(0, "#b8773f"); cg.addColorStop(.55, "#cc9257"); cg.addColorStop(.86, "#8a4d22"); cg.addColorStop(1, "#3a1909");
+        ctx.fillStyle = cg; ctx.fillRect(G.cx - rx, sY - ry, rx * 2, ry * 2);
+        ctx.globalAlpha = L.crema * .75;
+        ctx.save();
+        ctx.translate(G.cx, sY); ctx.scale(1, ry / rx); ctx.rotate(reduce ? 0 : t * .04);
+        ctx.drawImage(CREMA, -rx, -rx, rx * 2, rx * 2);
+        ctx.restore();
+      }
+      ctx.restore();
+      // ondas onde o café cai
+      if (L.flow > .05) {
+        var ix = G.cx + G.tw * .08;
+        ctx.save();
+        ctx.beginPath(); ctx.ellipse(G.cx, sY, rx, ry, 0, 0, PI2); ctx.clip();
+        ctx.strokeStyle = "rgba(255,214,160,.5)"; ctx.lineWidth = 1.2;
+        for (var i = 0; i < 3; i++) {
+          var ph2 = ((reduce ? .3 : t * 1.3) + i / 3) % 1;
+          ctx.globalAlpha = (1 - ph2) * .55 * L.flow;
+          ctx.beginPath(); ctx.ellipse(ix, sY, rx * (.08 + ph2 * .6), ry * (.08 + ph2 * .6), 0, 0, PI2); ctx.stroke();
+        }
+        ctx.restore();
+      }
+      G.sY = sY; G.srx = rx;
+    } else { G.sY = inn.B; G.srx = halfAt(inn, inn.B - 1); }
+    ctx.restore();
+  }
+
+  function drawPour(p, t, L, topY) {
+    if (!L.on || L.flow <= 0) return;
+    var x0 = G.cx + G.tw * .08, end = G.sY;
+    var y1 = lerp(topY, end, L.stop);          // a ponta de cima cai quando o despejo termina
+    var y2 = lerp(topY, end, L.start);         // a ponta de baixo desce até o café
+    if (y2 - y1 < 2) return;
+    var w = G.tw * .05 * (.55 + .45 * L.flow);
+    var steps = 26, i, y, wob;
+    ctx.beginPath();
+    for (i = 0; i <= steps; i++) {
+      y = lerp(y1, y2, i / steps);
+      wob = reduce ? 0 : Math.sin(y * .035 + t * 9) * w * .12;
+      var ww = w * (.7 + .3 * (i / steps));
+      if (i === 0) ctx.moveTo(x0 - ww / 2 + wob, y); else ctx.lineTo(x0 - ww / 2 + wob, y);
+    }
+    for (i = steps; i >= 0; i--) {
+      y = lerp(y1, y2, i / steps);
+      wob = reduce ? 0 : Math.sin(y * .035 + t * 9) * w * .12;
+      ctx.lineTo(x0 + w * (.7 + .3 * (i / steps)) / 2 + wob, y);
+    }
+    ctx.closePath();
+    var sg = ctx.createLinearGradient(x0 - w, 0, x0 + w, 0);
+    var mid = L.dark < .5 ? "rgba(214,140,70,.85)" : "rgba(150,78,30,.95)";
+    sg.addColorStop(0, "rgba(40,16,5,.95)"); sg.addColorStop(.42, mid); sg.addColorStop(.58, mid); sg.addColorStop(1, "rgba(30,12,4,.95)");
+    ctx.fillStyle = sg; ctx.fill();
+    ctx.strokeStyle = "rgba(255,228,190,.32)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0 - w * .12, y1); ctx.lineTo(x0 - w * .12, y2); ctx.stroke();
+    // respingos
+    if (L.start >= 1 && !reduce) {
+      ctx.fillStyle = "rgba(120,60,22,.9)";
+      for (i = 0; i < 12; i++) {
+        var ph = (t * 1.7 + i / 12) % 1, ang = -PI / 2 + (i % 2 ? 1 : -1) * (.3 + (i % 5) * .14);
+        var sp = G.tw * (.12 + (i % 4) * .03);
+        var dx = Math.cos(ang) * sp * ph, dy = Math.sin(ang) * sp * ph + ph * ph * sp * 1.3;
+        ctx.globalAlpha = (1 - ph) * L.flow;
+        ctx.beginPath(); ctx.arc(x0 + dx, end + dy, Math.max(.8, G.tw * .007 * (1 - ph)), 0, PI2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function wallStreak(b, side, from, to, off, width, alpha) {
+    var pts = b.pts, first = true;
+    ctx.beginPath();
+    for (var i = 0; i < pts.length; i++) {
+      var y = pts[i][1];
+      if (y < b.T + b.h * from || y > b.T + b.h * to) continue;
+      var x = side < 0 ? pts[i][0] + off : 2 * b.cx - pts[i][0] - off;
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    var gr = ctx.createLinearGradient(0, b.T + b.h * from, 0, b.T + b.h * to);
+    gr.addColorStop(0, "rgba(255,240,222,0)"); gr.addColorStop(.35, "rgba(255,240,222," + alpha + ")"); gr.addColorStop(1, "rgba(255,240,222,0)");
+    ctx.strokeStyle = gr; ctx.lineWidth = width; ctx.lineCap = "round"; ctx.stroke();
+  }
+  function handlePath() {
+    var h = G.handle, tw = G.tw, R = G.cx + G.rx;
+    ctx.beginPath();
+    ctx.moveTo(h[0], h[1]);
+    ctx.bezierCurveTo(R + tw * .3, G.T + G.h * .02, R + tw * .32, G.T + G.h * .66, h[2], h[3]);
+  }
+
+  function drawGlassBack(form) {
+    if (form <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = smooth(seg(form, .5, 1));
+    ctx.strokeStyle = "rgba(255,232,206,.22)"; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.ellipse(G.cx, G.T, G.rx, G.ry, 0, PI, PI2); ctx.stroke();
+    ctx.restore();
+  }
+  function drawGlassFront(form, p, t) {
+    if (form <= 0) return;
+    var o = G.outer, body = smooth(seg(form, .5, 1)), draw = smooth(clamp(form * 1.35));
+    ctx.save();
+    // corpo de vidro
+    if (body > 0) {
+      ctx.globalAlpha = body;
+      var gg = ctx.createLinearGradient(G.cx - G.rx, 0, G.cx + G.rx, 0);
+      gg.addColorStop(0, "rgba(255,236,214,.16)"); gg.addColorStop(.13, "rgba(255,236,214,.035)");
+      gg.addColorStop(.5, "rgba(255,236,214,.015)"); gg.addColorStop(.87, "rgba(255,236,214,.045)"); gg.addColorStop(1, "rgba(255,236,214,.18)");
+      ctx.fillStyle = gg;
+      ctx.beginPath(); bowlPath(ctx, o, false); ctx.ellipse(G.cx, G.T, G.rx, G.ry, 0, 0, PI, true); ctx.fill();
+      // fundo grosso do vidro
+      ctx.strokeStyle = "rgba(255,226,190,.28)"; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.ellipse(G.cx, G.inner.B + G.h * .03, G.inner.bw * .45, G.h * .035, 0, 0, PI); ctx.stroke();
+      // reflexos
+      wallStreak(o, -1, .1, .72, G.tw * .07, G.tw * .035, .42);
+      wallStreak(o, 1, .14, .6, G.tw * .06, G.tw * .014, .28);
+      // luz dourada atravessando o café
+      if (G.sY < G.inner.B - 2) {
+        var cg = ctx.createRadialGradient(G.cx, G.B + G.h * .05, 0, G.cx, G.B + G.h * .05, G.tw * .55);
+        cg.addColorStop(0, "rgba(232,150,70,.22)"); cg.addColorStop(1, "rgba(232,150,70,0)");
+        ctx.fillStyle = cg;
+        ctx.save(); ctx.translate(G.cx, G.B + G.h * .05); ctx.scale(1, .3); ctx.translate(-G.cx, -(G.B + G.h * .05));
+        ctx.beginPath(); ctx.arc(G.cx, G.B + G.h * .05, G.tw * .55, 0, PI2); ctx.fill(); ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // contorno que se desenha (a xícara "ganha forma")
+    var len = G.outLen;
+    ctx.lineCap = "round";
+    if (draw < 1) { ctx.setLineDash([len * draw, len]); }
+    if (body < 1) { ctx.shadowColor = "rgba(255,190,110,.9)"; ctx.shadowBlur = 16 * (1 - body); }
+    ctx.strokeStyle = "rgba(255,236,214," + lerp(.85, .5, body) + ")"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); bowlPath(ctx, o, false); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(G.cx, G.T, G.rx, G.ry, 0, 0, PI); ctx.stroke();
+    ctx.setLineDash([]); ctx.shadowBlur = 0;
+    // alça
+    var hA = smooth(seg(form, .35, .85));
+    if (hA > 0) {
+      ctx.globalAlpha = hA;
+      handlePath(); ctx.strokeStyle = "rgba(255,236,214,.1)"; ctx.lineWidth = G.tw * .07; ctx.stroke();
+      handlePath(); ctx.strokeStyle = "rgba(255,236,214,.42)"; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    // borda grossa
+    if (body > 0) {
+      ctx.globalAlpha = body;
+      ctx.strokeStyle = "rgba(255,236,214,.2)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(G.cx, G.T + 1.5, G.rx - G.tw * .02, G.ry * .85, 0, 0, PI); ctx.stroke();
+    }
+    // faixa de luz que atravessa o vidro (cena 11)
+    var k11 = beat(p, 10);
+    if (k11 > 0 && k11 < 1) {
+      ctx.save();
+      ctx.beginPath(); bowlPath(ctx, o, false); ctx.ellipse(G.cx, G.T, G.rx, G.ry, 0, 0, PI, true); ctx.clip();
+      var bx = lerp(G.cx - G.tw * 1.1, G.cx + G.tw * 1.1, smooth(k11));
+      var sw = ctx.createLinearGradient(bx - G.tw * .25, 0, bx + G.tw * .25, 0);
+      sw.addColorStop(0, "rgba(255,214,150,0)"); sw.addColorStop(.5, "rgba(255,214,150,.3)"); sw.addColorStop(1, "rgba(255,214,150,0)");
+      ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = Math.sin(k11 * PI);
+      ctx.fillStyle = sw; ctx.fillRect(G.cx - G.tw, G.T - G.ry * 2, G.tw * 2, G.h + G.ry * 4);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function drawSteam(p, t) {
+    var I = smooth(seg(p, B[6] + .02, B[8])) * (1 + .7 * Math.sin(beat(p, 8) * PI));
+    if (I <= 0) return;
+    var tt = reduce ? 1.7 : t;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    for (var i = 0; i < puffs.length; i++) {
+      var f = puffs[i], age = (tt / 3.8 + f.ph) % 1;
+      var y = G.sY - age * G.h * 1.55;
+      var x = G.cx + f.u * G.srx * .5 * (1 - age * .4) + Math.sin(age * 5.2 + f.ph * 12 + tt * .5) * G.tw * .1 * age;
+      var s = G.tw * (.1 + age * .38) * f.sz;
+      ctx.globalAlpha = Math.pow(Math.sin(age * PI), 2) * (1 - age * .5) * .2 * I;
+      ctx.drawImage(PUFF, x - s * .35, y - s, s * .7, s * 2);
+    }
+    ctx.restore();
+  }
+
+  function render(p, t) {
+    if (!G) return;
+    var form = beat(p, 3);
+    var cupA = smooth(seg(form, .4, 1));
+    drawBackground(p, t, cupA);
+    var cam = camera(p), s = cam[0];
+    ctx.setTransform(dpr * s, 0, 0, dpr * s, dpr * (W / 2 - W / 2 * s), dpr * (H / 2 - cam[1] * s));
+    var topY = cam[1] - H / 2 / s - 10;
+    var L = liquid(p);
+    drawBeans(p, t, false);
+    drawSaucer(p);
+    drawGlassBack(form);
+    drawLiquid(p, t, L);
+    drawPour(p, t, L, topY);
+    drawDust(p, t);
+    drawGlassFront(form, p, t);
+    drawSteam(p, t);
+    drawBeans(p, t, true);
+    var black = Math.max(seg(p, .985, 1), 1 - seg(p, 0, .015));
+    if (black > 0) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = "rgba(10,6,4," + black + ")"; ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  /* ---------- Textos sobrepostos ---------- */
+  var title = document.getElementById("filmTitle");
+  var end = document.getElementById("filmEnd");
+  var cap = document.getElementById("filmCaption");
+  var num = document.getElementById("filmNum");
+  var text = document.getElementById("filmText");
+  var bar = document.getElementById("filmBar");
+  var shown = 0, swapTimer = 0;
+  function overlays(p) {
+    var ta = 1 - seg(p, .035, .07);
+    title.style.opacity = String(ta);
+    title.style.transform = "translateY(calc(-50% - " + (1 - ta) * 40 + "px))";
+    title.style.visibility = ta <= 0 ? "hidden" : "visible";
+    var ea = seg(p, .935, .955) * (1 - seg(p, .98, .995));
+    end.style.opacity = String(ea);
+    end.style.transform = "translateY(" + (1 - ea) * 16 + "px)";
+    end.style.visibility = ea <= 0 ? "hidden" : "visible";
+    cap.style.opacity = String(seg(p, .06, .09) * (1 - seg(p, .98, .995)));
+    bar.style.transform = "scaleX(" + p + ")";
+    var idx = 0;
+    while (idx < 11 && p >= B[idx + 1]) idx++;
+    if (idx !== shown) {
+      shown = idx;
+      cap.classList.add("is-swapping");
+      clearTimeout(swapTimer);
+      swapTimer = setTimeout(function () {
+        num.textContent = (shown < 9 ? "0" : "") + (shown + 1) + " / 12";
+        text.textContent = CAPTIONS[shown];
+        cap.classList.remove("is-swapping");
+      }, reduce ? 0 : 200);
+    }
+  }
+
+  /* ---------- Laço: só roda com a seção na tela ---------- */
+  // Toca sozinho: 12 cenas em 30 s e recomeça. Com "reduzir movimento", começa parado na xícara pronta.
+  var D = 30, clock = reduce ? D * .9 : 0, amb = 0, paused = reduce;
+  var cur = 0, last = 0, running = false, visible = false, dirty = true;
+  var pauseBtn = document.getElementById("filmPause");
+  function setPaused(v) {
+    paused = v;
+    pauseBtn.setAttribute("aria-pressed", v ? "true" : "false");
+    pauseBtn.textContent = v ? "Continuar" : "Pausar";
+  }
+  pauseBtn.addEventListener("click", function () { setPaused(!paused); });
+  setPaused(paused);
+  function frame(now) {
+    if (!visible) { running = false; return; }
+    var t = now / 1000, dt = Math.min(.1, last ? t - last : .016);
+    last = t;
+    if (!paused) { clock += dt; amb += dt; }
+    cur = (clock % D) / D;
+    if (dirty) { dirty = !layout(); }
+    render(cur, amb);
+    overlays(cur);
+    requestAnimationFrame(frame);
+  }
+  function start() { if (!running && visible) { running = true; last = 0; requestAnimationFrame(frame); } }
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; start(); }, { rootMargin: "120px 0px" }).observe(section);
+  } else { visible = true; start(); }
+  var lastW = 0, lastH = 0;
+  window.addEventListener("resize", function () {
+    var r = canvas.getBoundingClientRect();
+    if (Math.abs(r.width - lastW) > 1 || Math.abs(r.height - lastH) > 60) { lastW = r.width; lastH = r.height; dirty = true; }
+  }, { passive: true });
+  if (layout()) { var r0 = canvas.getBoundingClientRect(); lastW = r0.width; lastH = r0.height; dirty = false; cur = (clock % D) / D; render(cur, 0); overlays(cur); }
+})();
+</script>
+
 </body>
 </html>

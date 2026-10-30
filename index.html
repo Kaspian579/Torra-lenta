@@ -33,20 +33,11 @@
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
   --header-h: 60px;
   --nav-h: 64px;
+  --panel: rgba(23, 17, 13, .86);
+  --panel-soft: rgba(23, 17, 13, .55);
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #ede4d8; --surface: #f7f1e9; --line: #d6c6b3; --fg: #2a1c13; --muted: #6f5847;
-    --accent: #9a5716; --accent-ink: #fbf5ee; --steam: rgba(42, 28, 19, .35);
-    color-scheme: light;
-  }
-}
-:root[data-theme="light"] {
-  --bg: #ede4d8; --surface: #f7f1e9; --line: #d6c6b3; --fg: #2a1c13; --muted: #6f5847;
-  --accent: #9a5716; --accent-ink: #fbf5ee; --steam: rgba(42, 28, 19, .35);
-  color-scheme: light;
-}
+/* Sempre escuro: o filme fica de fundo no site inteiro e as seções passam por cima. */
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -112,7 +103,7 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 .btn--ghost { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
 
 /* ---------- Hero ---------- */
-.hero { padding-block: 40px 56px; overflow: hidden; }
+.hero { padding-block: 40px 56px; overflow: hidden; background: linear-gradient(var(--panel-soft), var(--panel)); }
 .hero .wrap { display: grid; gap: 28px; }
 .hero-copy { display: grid; gap: 18px; will-change: transform, opacity; }
 .hero h1 { font-size: clamp(2.6rem, 11vw, 5.2rem); font-weight: 800; letter-spacing: -.03em; }
@@ -126,7 +117,7 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 }
 .status i { width: 8px; height: 8px; border-radius: 50%; background: #6fbf73; }
 .status.is-closed i { background: #d0675c; }
-.cup { width: min(78%, 320px); justify-self: center; color: var(--fg); will-change: transform; }
+.cup { display: none; width: min(78%, 320px); justify-self: center; color: var(--fg); will-change: transform; }
 .cup .liquid { fill: var(--accent); }
 .cup .steam path { fill: none; stroke: var(--steam); stroke-width: 3; stroke-linecap: round; }
 
@@ -164,7 +155,7 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 }
 
 /* ---------- Seções ---------- */
-.block { padding-block: 72px; border-top: 1px solid var(--line); }
+.block { padding-block: 72px; border-top: 1px solid var(--line); background: var(--panel); }
 .block-head { display: grid; gap: 12px; margin-bottom: 32px; }
 .block h2 { font-size: clamp(2rem, 8vw, 3.4rem); font-weight: 700; letter-spacing: -.02em; }
 .block-head p { color: var(--muted); max-width: 52ch; }
@@ -244,7 +235,8 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 .hours td:last-child { text-align: right; font-family: var(--font-mono); font-size: .95rem; }
 .hours tr.is-today td { color: var(--accent); font-weight: 600; }
 
-.footer { padding-block: 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+.footer { position: relative; z-index: 1; padding-block: 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; background: rgba(23, 17, 13, .94); }
+main { position: relative; z-index: 1; }
 .footer .wrap { display: grid; gap: 6px; }
 
 /* ---------- Filme: do grão à xícara (sempre escuro, como uma sala de cinema) ---------- */
@@ -253,7 +245,7 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   --film-ink: #f4e7d6;
   --film-muted: rgba(244, 231, 214, .62);
   --film-gold: #dba660;
-  position: relative; background: var(--film-bg); color: var(--film-ink);
+  position: relative; color: var(--film-ink);
 }
 .film-sticky {
   position: relative; min-height: 70vh; display: grid; place-items: center; overflow: hidden;
@@ -264,8 +256,12 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   height: calc(100svh - var(--header-h) - env(safe-area-inset-top, 0px));
   min-height: 480px;
 }
+.film-bg {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  height: 100vh; height: 100lvh; background: #0a0604;
+}
 .film-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.film-sticky::after {
+.film-bg::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 40%, rgba(0, 0, 0, .6) 100%);
 }
@@ -311,10 +307,22 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   position: absolute; z-index: 2; left: var(--gutter-l); right: var(--gutter-r);
   bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 16px);
   height: 2px; border-radius: 2px; background: rgba(244, 231, 214, .14); overflow: hidden;
+  margin-right: 120px;
 }
 .film-bar i { display: block; height: 100%; background: var(--film-gold); transform-origin: 0 50%; transform: scaleX(0); }
 .film-controls { position: absolute; z-index: 3; top: 14px; right: var(--gutter-r); gap: 8px; }
-.film-skip, .film-pause {
+.bg-pause { display: none; }
+.nav-pause { display: none; border: 0; background: none; cursor: pointer; }
+.film-on .nav-pause { display: grid; }
+.nav-pause .i-play, .nav-pause[aria-pressed="true"] .i-pause { display: none; }
+.nav-pause[aria-pressed="true"] .i-play { display: block; }
+@media (min-width: 760px) { .film-on .bg-pause { display: inline-flex; align-items: center; } }
+.bg-pause {
+  position: fixed; z-index: 26; right: var(--gutter-r);
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
+}
+.film-skip, .bg-pause {
+  --film-ink: #f4e7d6; --film-muted: rgba(244, 231, 214, .62);
   min-height: 36px; padding: 10px 14px; cursor: pointer; border-radius: 999px; border: 1px solid rgba(244, 231, 214, .22);
   background: rgba(10, 6, 4, .45); color: var(--film-muted); text-decoration: none;
   font: 500 .72rem/1 var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
@@ -328,10 +336,11 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 @media (min-width: 760px) {
   .film-caption { bottom: 64px; }
   .film-bar { bottom: 40px; max-width: 420px; }
+  .bg-pause { bottom: 24px; }
 }
 @media (hover: hover) and (pointer: fine) {
-  .film-skip, .film-pause { transition: color 160ms ease, border-color 160ms ease; }
-  .film-skip:hover, .film-pause:hover { color: var(--film-ink); border-color: rgba(244, 231, 214, .5); }
+  .film-skip, .bg-pause { transition: color 160ms ease, border-color 160ms ease; }
+  .film-skip:hover, .bg-pause:hover { color: var(--film-ink); border-color: rgba(244, 231, 214, .5); }
 }
 
 /* ---------- Navegação inferior (celular) ---------- */
@@ -341,9 +350,9 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
 }
-.bottom-nav a {
+.bottom-nav a, .nav-pause {
   display: grid; justify-items: center; gap: 3px; padding: 6px 0; min-height: 52px; border-radius: 12px;
   text-decoration: none; color: var(--muted); font: 500 .72rem/1 var(--font-body);
   transition: color 200ms ease;
@@ -377,6 +386,11 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 
 <div class="progress" id="progress" aria-hidden="true"></div>
 
+<div class="film-bg" aria-hidden="true">
+  <canvas class="film-canvas" id="filmCanvas"></canvas>
+  <div class="film-grain" id="filmGrain"></div>
+</div>
+
 <header class="header" id="header">
   <div class="wrap">
     <a class="logo" href="#inicio" aria-label="Torra Lenta, voltar ao início">
@@ -396,8 +410,6 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
 <main>
   <section class="film" id="filme" aria-label="Filme: do grão à xícara">
     <div class="film-sticky">
-      <canvas class="film-canvas" id="filmCanvas" aria-hidden="true"></canvas>
-      <div class="film-grain" id="filmGrain" aria-hidden="true"></div>
       <div class="film-title" id="filmTitle">
         <span class="eyebrow">Torra Lenta apresenta</span>
         <h2>Do grão à xícara</h2>
@@ -412,7 +424,6 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
       </div>
       <div class="film-bar" aria-hidden="true"><i id="filmBar"></i></div>
       <div class="film-controls">
-        <button class="film-pause" id="filmPause" type="button" aria-pressed="false">Pausar</button>
         <a class="film-skip" href="#inicio">Pular</a>
       </div>
     </div>
@@ -579,11 +590,14 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
   </div>
 </footer>
 
+<button class="bg-pause" type="button" data-film-pause aria-pressed="false"><span data-label>Pausar</span></button>
+
 <nav class="bottom-nav" aria-label="Navegação rápida">
   <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</a>
   <a href="#cardapio" data-nav="cardapio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-6-6zM17 11h1.5a2.5 2.5 0 0 1 0 5H16.5M8 3v3M12 3v3"/></svg>Cardápio</a>
   <a href="#processo" data-nav="processo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="6" ry="9" transform="rotate(30 12 12)"/><path d="M9 5c4 4 2 10 6 14"/></svg>Processo</a>
   <a href="#visite" data-nav="visite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Visite</a>
+  <button class="nav-pause" type="button" data-film-pause aria-pressed="false"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg><span data-label>Pausar</span></button>
 </nav>
 
 <script>
@@ -1338,33 +1352,39 @@ section { scroll-margin-top: calc(var(--header-h) + env(safe-area-inset-top, 0px
     }
   }
 
-  /* ---------- Laço: só roda com a seção na tela ---------- */
+  /* ---------- Laço: o filme é o fundo do site inteiro ---------- */
   // Toca sozinho: 12 cenas em 30 s e recomeça.
   var D = 30, clock = 0, amb = 0, paused = false;
-  var cur = 0, last = 0, running = false, visible = false, dirty = true;
-  var pauseBtn = document.getElementById("filmPause");
+  var cur = 0, last = 0, lastDraw = 0, inOpening = true, dirty = true, drawn = false;
+  var pauseBtns = document.querySelectorAll("[data-film-pause]");
   function setPaused(v) {
     paused = v;
-    pauseBtn.setAttribute("aria-pressed", v ? "true" : "false");
-    pauseBtn.textContent = v ? "Continuar" : "Pausar";
+    pauseBtns.forEach(function (b) {
+      b.setAttribute("aria-pressed", v ? "true" : "false");
+      b.querySelector("[data-label]").textContent = v ? "Continuar" : "Pausar";
+    });
   }
-  pauseBtn.addEventListener("click", function () { setPaused(!paused); });
+  pauseBtns.forEach(function (b) { b.addEventListener("click", function () { setPaused(!paused); drawn = false; }); });
   setPaused(paused);
   function frame(now) {
-    if (!visible) { running = false; return; }
     var t = now / 1000, dt = Math.min(.1, last ? t - last : .016);
     last = t;
     if (!paused) { clock += dt; amb += dt; }
     cur = (clock % D) / D;
-    if (dirty) { dirty = !layout(); }
-    render(cur, amb);
-    overlays(cur);
+    if (dirty) { dirty = !layout(); drawn = false; }
+    // Na abertura desenha todo quadro; atrás do conteúdo, ~30 por segundo para poupar bateria.
+    // Pausado, desenha uma vez só.
+    if ((!paused || !drawn) && (inOpening || now - lastDraw > 32)) {
+      lastDraw = now; drawn = true;
+      render(cur, amb);
+    }
+    if (inOpening) overlays(cur);
     requestAnimationFrame(frame);
   }
-  function start() { if (!running && visible) { running = true; last = 0; requestAnimationFrame(frame); } }
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; start(); }, { rootMargin: "120px 0px" }).observe(section);
-  } else { visible = true; start(); }
+    new IntersectionObserver(function (e) { inOpening = e[0].isIntersecting; }).observe(section);
+  }
+  requestAnimationFrame(frame);
   var lastW = 0, lastH = 0;
   window.addEventListener("resize", function () {
     var r = canvas.getBoundingClientRect();
